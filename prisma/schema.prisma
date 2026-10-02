@@ -29,6 +29,7 @@ model User {
   templates     Template[]
   sentEmails    SentEmail[]
   apiKeys       ApiKey[]
+  services      Service[]
 }
 
 model ApiKey {
@@ -66,8 +67,20 @@ model GmailAccount {
   isActive     Boolean   @default(true)
   createdAt    DateTime  @default(now())
   sentEmails   SentEmail[]
+  services     Service[]
 
   @@unique([userId, email])
+}
+
+model Service {
+  id             String       @id @default(cuid())
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name           String
+  serviceId      String       @unique // identifiant exposé, choisi par l'utilisateur (pré-rempli depuis le nom)
+  gmailAccountId String
+  gmailAccount   GmailAccount @relation(fields: [gmailAccountId], references: [id])
+  createdAt      DateTime     @default(now())
 }
 
 model Template {
