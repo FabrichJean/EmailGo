@@ -118,6 +118,7 @@ const en = {
       doneEditing: "Preview",
       tabContent: "Content",
       tabSettings: "Settings",
+      tabTest: "Test",
       settings: {
         nameLabel: "Name",
         idLabel: "ID",
@@ -126,6 +127,19 @@ const en = {
         dangerDescription: "Deleting this template cannot be undone.",
         deleteButton: "Delete template",
         newNotice: "Save the template first to access these settings.",
+      },
+      test: {
+        subtitle: "Send this template to a test address to check how it actually renders in an inbox.",
+        accountLabel: "Send from",
+        noAccounts: "No Gmail account connected — connect one from the Connect Gmail page.",
+        recipientLabel: "Test address",
+        variablesTitle: "Variable values",
+        variablesHint: "Leave empty to send {{variable}} as-is.",
+        sendButton: "Send test",
+        sending: "Sending…",
+        success: "Test email sent.",
+        missingSubject: "Fill in at least the subject before sending a test.",
+        unknownError: "Unknown error",
       },
       toolbar: {
         bold: "Bold",
