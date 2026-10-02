@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <defs>
+    <filter id="cursor-glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feDropShadow dx="0" dy="0" stdDeviation="1.6" flood-color="#f43f5e" flood-opacity="0.85" />
+    </filter>
+  </defs>
+  <path
+    d="M4 2 L4 20.3 L8.6 16 L11.7 23.3 L14.5 22.1 L11.4 15 L17.7 14.8 Z"
+    fill="#ffffff"
+    stroke="#f43f5e"
+    stroke-width="1.6"
+    stroke-linejoin="round"
+    filter="url(#cursor-glow)"
+  />
+</svg>

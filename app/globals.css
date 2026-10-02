@@ -36,6 +36,32 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
   position: relative;
+  cursor: url("/cursor.svg") 4 2, auto;
+}
+
+/* Les liens/boutons/contrôles ont un curseur "pointer" imposé par la feuille de
+   style par défaut du navigateur, qui prime sur l'héritage : on le réaligne
+   explicitement sur notre curseur personnalisé pour qu'il s'applique partout,
+   boutons compris (pas de main pointeur, comme sur la maquette). */
+a,
+button,
+select,
+label,
+summary,
+[role="button"],
+input[type="button"],
+input[type="submit"],
+input[type="checkbox"],
+input[type="radio"] {
+  cursor: url("/cursor.svg") 4 2, auto;
+}
+
+/* Curseur texte natif conservé là où on édite du texte : le curseur personnalisé
+   du body, hérité, écraserait sinon le curseur "I-beam" dans les champs. */
+input,
+textarea,
+[contenteditable="true"] {
+  cursor: text;
 }
 
 /* Fond ambiant neon: une seule lueur large et douce, en haut de l'écran. */
