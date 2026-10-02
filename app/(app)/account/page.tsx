@@ -4,6 +4,7 @@ import { getServerDictionary } from "@/lib/i18n/server";
 import { requireUser } from "@/lib/auth/session";
 import { interpolate } from "@/lib/i18n/interpolate";
 import SendLimitBanner from "../../SendLimitBanner";
+import AccountApiKeys from "./AccountApiKeys";
 
 const INTL_LOCALE: Record<string, string> = { fr: "fr-FR", en: "en-US" };
 
@@ -58,6 +59,8 @@ export default async function AccountPage() {
       </div>
 
       <SendLimitBanner />
+
+      <AccountApiKeys />
 
       <form action="/api/auth/logout" method="POST">
         <button

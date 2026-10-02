@@ -253,6 +253,17 @@ const fr = {
     statTemplates: "Templates",
     statSent: "Emails envoyés",
     signOut: "Déconnexion",
+    apiKeys: {
+      title: "Clés API",
+      subtitle: "Génère une clé API pour accéder à EmailGo par programmation (utilisation détaillée à venir).",
+      namePlaceholder: "Nom de la clé (ex : Intégration CRM)",
+      create: "Générer une clé",
+      creating: "Génération…",
+      newKeyNotice: "Copie cette clé maintenant, elle ne sera plus jamais affichée en entier :",
+      noKeys: "Aucune clé API pour l'instant.",
+      revoke: "Révoquer",
+      revokeConfirm: "Révoquer cette clé API ? Toute intégration qui l'utilise cessera de fonctionner.",
+    },
   },
   sendLimit: {
     title: "Limite d'envoi",
