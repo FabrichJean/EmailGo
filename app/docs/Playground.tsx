@@ -159,7 +159,7 @@ export default function Playground() {
                   />
                 </Field>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <Field label="Service ID">
+                  <Field label={d.serviceIdLabel}>
                     <input
                       value={serviceId}
                       onChange={(e) => setServiceId(e.target.value)}
@@ -167,7 +167,7 @@ export default function Playground() {
                       className="input font-mono"
                     />
                   </Field>
-                  <Field label="Template ID">
+                  <Field label={d.templateIdLabel}>
                     <input
                       value={templateId}
                       onChange={(e) => setTemplateId(e.target.value)}
@@ -176,7 +176,7 @@ export default function Playground() {
                     />
                   </Field>
                 </div>
-                <Field label="Destinataire">
+                <Field label={d.recipientLabel}>
                   <input
                     type="email"
                     value={recipient}
@@ -187,11 +187,11 @@ export default function Playground() {
                 </Field>
 
                 <div className="flex flex-col gap-1.5">
-                  <p className="text-sm text-zinc-700 dark:text-zinc-300">Variables</p>
+                  <p className="text-sm text-zinc-700 dark:text-zinc-300">{d.variablesLabel}</p>
                   <div className="overflow-hidden rounded-md border border-border">
                     <div className="grid grid-cols-[1fr_1fr_auto] gap-px bg-border text-xs font-medium text-zinc-500">
-                      <span className="bg-zinc-50 px-2 py-1 dark:bg-zinc-900">Clé</span>
-                      <span className="bg-zinc-50 px-2 py-1 dark:bg-zinc-900">Valeur</span>
+                      <span className="bg-zinc-50 px-2 py-1 dark:bg-zinc-900">{d.keyColumn}</span>
+                      <span className="bg-zinc-50 px-2 py-1 dark:bg-zinc-900">{d.valueColumn}</span>
                       <span className="bg-zinc-50 px-2 py-1 dark:bg-zinc-900" />
                     </div>
                     {variables.map((row, i) => (
@@ -211,7 +211,7 @@ export default function Playground() {
                         <button
                           type="button"
                           onClick={() => removeRow(i)}
-                          aria-label="Supprimer la variable"
+                          aria-label={d.removeVariable}
                           className="flex items-center justify-center bg-surface px-2 py-1.5 text-zinc-400 hover:text-red-600 dark:hover:text-red-400"
                         >
                           <IconTrash className="h-3.5 w-3.5" />
@@ -224,12 +224,12 @@ export default function Playground() {
                     onClick={addRow}
                     className="w-fit rounded-md px-2 py-1 text-xs font-medium text-accent hover:bg-accent/10"
                   >
-                    + Ajouter une variable
+                    {d.addVariable}
                   </button>
                 </div>
               </div>
 
-              <p className="mt-4 mb-1 text-xs font-medium text-zinc-500">Corps de la requête</p>
+              <p className="mt-4 mb-1 text-xs font-medium text-zinc-500">{d.requestBody}</p>
               <CodeBlock lang="json" code={requestPreview} />
 
               {error && <p className="mt-3 text-sm text-red-600 dark:text-red-400">{error}</p>}
@@ -241,7 +241,7 @@ export default function Playground() {
                       result.status < 300 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"
                     }`}
                   >
-                    Réponse — HTTP {result.status}
+                    {interpolate(d.responseTitle, { status: result.status })}
                   </p>
                   <CodeBlock lang="json" code={result.body} />
                 </div>
@@ -254,7 +254,7 @@ export default function Playground() {
                 onClick={() => setOpen(false)}
                 className="rounded-md border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-zinc-100 dark:hover:bg-zinc-900"
               >
-                Fermer
+                {d.close}
               </button>
               <button
                 type="button"
@@ -263,7 +263,7 @@ export default function Playground() {
                 className="glow-accent flex items-center gap-1.5 rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:opacity-90 disabled:opacity-50"
               >
                 <IconPlay className="h-3.5 w-3.5" />
-                {sending ? "Envoi…" : "Envoyer la requête"}
+                {sending ? d.sending : d.send}
               </button>
             </div>
           </div>
