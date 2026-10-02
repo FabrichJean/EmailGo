@@ -36,7 +36,7 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
   position: relative;
-  cursor: url("/cursor.svg") 4 2, auto;
+  cursor: url("/cursor.svg") 28 26, auto;
 }
 
 /* Les liens/boutons/contrôles ont un curseur "pointer" imposé par la feuille de
@@ -53,7 +53,7 @@ input[type="button"],
 input[type="submit"],
 input[type="checkbox"],
 input[type="radio"] {
-  cursor: url("/cursor.svg") 4 2, auto;
+  cursor: url("/cursor.svg") 28 26, auto;
 }
 
 /* Curseur texte natif conservé là où on édite du texte : le curseur personnalisé

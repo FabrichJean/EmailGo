@@ -1,14 +1,26 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80">
   <defs>
-    <filter id="cursor-glow" x="-60%" y="-60%" width="220%" height="220%">
-      <feDropShadow dx="0" dy="0" stdDeviation="1.6" flood-color="#f43f5e" flood-opacity="0.85" />
+    <filter id="cursor-glow" x="-200%" y="-200%" width="500%" height="500%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="10" result="blur-wide" />
+      <feFlood flood-color="#f43f5e" flood-opacity="0.5" result="color-wide" />
+      <feComposite in="color-wide" in2="blur-wide" operator="in" result="glow-wide" />
+
+      <feGaussianBlur in="SourceAlpha" stdDeviation="8" result="blur-tight" />
+      <feFlood flood-color="#f43f5e" flood-opacity="0.8" result="color-tight" />
+      <feComposite in="color-tight" in2="blur-tight" operator="in" result="glow-tight" />
+
+      <feMerge>
+        <feMergeNode in="glow-wide" />
+        <feMergeNode in="glow-tight" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
     </filter>
   </defs>
   <path
-    d="M4 2 L4 20.3 L8.6 16 L11.7 23.3 L14.5 22.1 L11.4 15 L17.7 14.8 Z"
+    d="M28 26 L28 44.3 L32.6 40 L35.7 47.3 L38.5 46.1 L35.4 39 L41.7 38.8 Z"
     fill="#ffffff"
     stroke="#f43f5e"
-    stroke-width="1.6"
+    stroke-width="0.3"
     stroke-linejoin="round"
     filter="url(#cursor-glow)"
   />
