@@ -214,6 +214,27 @@ export function IconSparkles({ className }: IconProps) {
   );
 }
 
+export function IconBook({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className={className ?? base}>
+      <path
+        d="M4 19.5V5a2 2 0 0 1 2-2h12.5a.5.5 0 0 1 .5.5V17a.5.5 0 0 1-.5.5H6a2 2 0 0 0-2 2Zm0 0A2 2 0 0 0 6 21.5h12.5a.5.5 0 0 0 .5-.5v-2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M8 7h8M8 10.5h8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function IconExternalLink({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className={className ?? base}>
+      <path d="M14 4h6v6M20 4 10 14M9 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 export function IconMore({ className }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" className={className ?? base}>
