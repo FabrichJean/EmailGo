@@ -5,6 +5,7 @@ import { getServerDictionary } from "@/lib/i18n/server";
 import DocsLanguageToggle from "./DocsLanguageToggle";
 import DocsContentFr, { NAV as NAV_FR, strings as strings_fr } from "./content.fr";
 import DocsContentEn, { NAV as NAV_EN, strings as strings_en } from "./content.en";
+import ChatWidget from "./ChatWidget";
 
 export const metadata: Metadata = {
   title: "Documentation — EmailGo",
@@ -82,6 +83,8 @@ export default async function DocsPage() {
           </div>
         </main>
       </div>
+
+      <ChatWidget />
     </div>
   );
 }
