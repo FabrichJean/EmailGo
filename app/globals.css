@@ -197,3 +197,28 @@ body::after {
 .code-highlight .token.punctuation {
   color: #71717a;
 }
+
+/* Balayage "squelette" affiché sur un bouton en cours de chargement, sans changer
+   son texte : un dégradé traverse le bouton de gauche à droite en boucle. */
+@keyframes shimmer-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.btn-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, white 45%, transparent), transparent);
+  animation: shimmer-sweep 1.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-shimmer {
+    animation: none;
+    background: color-mix(in srgb, white 20%, transparent);
+  }
+}
