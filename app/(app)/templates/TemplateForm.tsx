@@ -15,16 +15,25 @@ type Props = {
   initialName?: string;
   initialSubject?: string;
   initialBody?: string;
+  initialCreatedAt?: string;
 };
 
-export default function TemplateForm({ templateId, initialName, initialSubject, initialBody }: Props) {
+export default function TemplateForm({
+  templateId,
+  initialName,
+  initialSubject,
+  initialBody,
+  initialCreatedAt,
+}: Props) {
   const router = useRouter();
-  const { dict } = useI18n();
+  const { dict, locale } = useI18n();
+  const [tab, setTab] = useState<"content" | "settings">("content");
   const [name, setName] = useState(initialName ?? "");
   const [subject, setSubject] = useState(initialSubject ?? "");
   const [body, setBody] = useState(initialBody ?? "");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -43,6 +52,8 @@ export default function TemplateForm({ templateId, initialName, initialSubject, 
   });
 
   const variables = useMemo(() => extractVariables(subject, body), [subject, body]);
+  const previewSubject = useMemo(() => highlightVariables(subject), [subject]);
+  const previewBody = useMemo(() => highlightVariables(body), [body]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -68,53 +79,183 @@ export default function TemplateForm({ templateId, initialName, initialSubject, 
     }
   }
 
+  async function handleDelete() {
+    if (!templateId) return;
+    if (!confirm(dict.templates.deleteConfirm)) return;
+    setDeleting(true);
+    try {
+      await fetch(`/api/templates/${templateId}`, { method: "DELETE" });
+      router.push("/templates");
+      router.refresh();
+    } finally {
+      setDeleting(false);
+    }
+  }
+
   return (
-    <div className="mx-auto w-full max-w-2xl">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-        <label className="flex flex-col gap-1 text-sm text-zinc-700 dark:text-zinc-300">
-          {dict.templates.form.nameLabel}
-          <input
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="input"
-            placeholder={dict.templates.form.namePlaceholder}
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-sm text-zinc-700 dark:text-zinc-300">
-          {dict.templates.form.subjectLabel}
-          <input
-            required
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-            className="input"
-            placeholder={dict.templates.form.subjectPlaceholder}
-          />
-        </label>
-        <div className="flex flex-col gap-1 text-sm text-zinc-700 dark:text-zinc-300">
-          {dict.templates.form.bodyLabel}
-          <EditorToolbar editor={editor} dict={dict} />
-          <EditorContent
-            editor={editor}
-            className="input rounded-t-none focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-accent"
-          />
-        </div>
-        <p className="text-xs text-zinc-500">{dict.templates.form.helpText}</p>
-        {variables.length > 0 && (
-          <p className="text-xs text-zinc-500">
-            {dict.templates.form.variablesDetected} {variables.map((v) => `{{${v}}}`).join(", ")}
-          </p>
-        )}
-        {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+    <div className="flex flex-col gap-6">
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="text-2xl font-semibold text-foreground">
+          {templateId ? dict.templates.editTitle : dict.templates.newTitle}
+        </h1>
         <button
           type="submit"
+          form="template-form"
           disabled={submitting}
-          className="glow-accent w-fit rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:opacity-90 disabled:opacity-50"
+          className="glow-accent w-fit shrink-0 rounded-md bg-accent px-4 py-2 text-sm font-medium whitespace-nowrap text-accent-foreground hover:opacity-90 disabled:opacity-50"
         >
           {submitting ? dict.templates.form.saving : dict.templates.form.save}
         </button>
-      </form>
+      </div>
+
+      <div className="flex gap-2 border-b border-border">
+        <TabButton active={tab === "content"} onClick={() => setTab("content")}>
+          {dict.templates.form.tabContent}
+        </TabButton>
+        <TabButton active={tab === "settings"} onClick={() => setTab("settings")}>
+          {dict.templates.form.tabSettings}
+        </TabButton>
+      </div>
+
+      <div className={tab === "content" ? "grid gap-6 lg:grid-cols-[1fr_360px]" : "hidden"}>
+        <form id="template-form" onSubmit={handleSubmit} className="card flex flex-col gap-3 p-5">
+          <label className="flex flex-col gap-1 text-sm text-zinc-700 dark:text-zinc-300">
+            {dict.templates.form.nameLabel}
+            <input
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="input"
+              placeholder={dict.templates.form.namePlaceholder}
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm text-zinc-700 dark:text-zinc-300">
+            {dict.templates.form.subjectLabel}
+            <input
+              required
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              className="input"
+              placeholder={dict.templates.form.subjectPlaceholder}
+            />
+          </label>
+          <div className="flex flex-col gap-1 text-sm text-zinc-700 dark:text-zinc-300">
+            {dict.templates.form.bodyLabel}
+            <EditorToolbar editor={editor} dict={dict} />
+            <EditorContent
+              editor={editor}
+              className="input rounded-t-none focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-accent"
+            />
+          </div>
+          <p className="text-xs text-zinc-500">{dict.templates.form.helpText}</p>
+          {variables.length > 0 && (
+            <p className="text-xs text-zinc-500">
+              {dict.templates.form.variablesDetected} {variables.map((v) => `{{${v}}}`).join(", ")}
+            </p>
+          )}
+          {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+        </form>
+
+        <aside className="card flex h-fit flex-col gap-3 p-5 lg:sticky lg:top-6">
+          <h2 className="font-medium text-foreground">{dict.templates.form.previewTitle}</h2>
+          {!subject && !body ? (
+            <p className="text-sm text-zinc-500">{dict.templates.form.previewEmpty}</p>
+          ) : (
+            <div className="overflow-hidden rounded-lg border border-border">
+              <div className="border-b border-border bg-zinc-50 px-4 py-3 dark:bg-zinc-900">
+                <p
+                  className="truncate text-sm font-medium text-foreground"
+                  dangerouslySetInnerHTML={{
+                    __html: previewSubject || dict.templates.form.previewNoSubject,
+                  }}
+                />
+              </div>
+              <div
+                className="prose prose-sm dark:prose-invert max-w-none p-4"
+                dangerouslySetInnerHTML={{ __html: previewBody }}
+              />
+            </div>
+          )}
+        </aside>
+      </div>
+
+      <div className={tab === "settings" ? "flex max-w-2xl flex-col gap-4" : "hidden"}>
+        {!templateId ? (
+          <p className="card p-5 text-sm text-zinc-500">{dict.templates.form.settings.newNotice}</p>
+        ) : (
+          <>
+            <section className="card flex flex-col gap-3 p-5">
+              <div className="flex items-center justify-between gap-4 text-sm">
+                <span className="text-zinc-500">{dict.templates.form.settings.nameLabel}</span>
+                <span className="truncate text-foreground">{name}</span>
+              </div>
+              <div className="flex items-center justify-between gap-4 text-sm">
+                <span className="shrink-0 text-zinc-500">{dict.templates.form.settings.idLabel}</span>
+                <code className="truncate font-mono text-xs text-foreground">{templateId}</code>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-zinc-500">{dict.templates.form.settings.createdLabel}</span>
+                <span className="text-foreground">{formatDate(initialCreatedAt, locale)}</span>
+              </div>
+            </section>
+
+            <section className="card flex flex-col gap-3 border-red-200 p-5 dark:border-red-900">
+              <h2 className="font-medium text-red-600 dark:text-red-400">{dict.templates.form.settings.dangerTitle}</h2>
+              <p className="text-sm text-zinc-500">{dict.templates.form.settings.dangerDescription}</p>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleting}
+                className="w-fit rounded-md border border-red-200 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-900/20"
+              >
+                {dict.templates.form.settings.deleteButton}
+              </button>
+            </section>
+          </>
+        )}
+      </div>
     </div>
+  );
+}
+
+function formatDate(value: string | undefined, locale: string): string {
+  if (!value) return "—";
+  return new Date(value).toLocaleDateString(locale === "en" ? "en-US" : "fr-FR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
+function TabButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`-mb-px border-b-2 px-3 py-2 text-sm font-medium ${
+        active
+          ? "border-accent text-accent"
+          : "border-transparent text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function highlightVariables(html: string): string {
+  return html.replace(
+    /\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g,
+    (_match, key: string) =>
+      `<span class="rounded bg-accent/20 px-1 py-0.5 font-mono text-[0.85em] text-accent">{{${key}}}</span>`,
   );
 }
 
