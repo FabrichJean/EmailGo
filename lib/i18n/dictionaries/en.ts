@@ -255,6 +255,17 @@ const en = {
     statTemplates: "Templates",
     statSent: "Emails sent",
     signOut: "Sign out",
+    apiKeys: {
+      title: "API keys",
+      subtitle: "Generate an API key to access EmailGo programmatically (detailed usage coming soon).",
+      namePlaceholder: "Key name (e.g. CRM integration)",
+      create: "Generate a key",
+      creating: "Generating…",
+      newKeyNotice: "Copy this key now, it will never be shown in full again:",
+      noKeys: "No API keys yet.",
+      revoke: "Revoke",
+      revokeConfirm: "Revoke this API key? Any integration using it will stop working.",
+    },
   },
   sendLimit: {
     title: "Send limit",
