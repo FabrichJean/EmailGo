@@ -28,6 +28,18 @@ model User {
   gmailAccounts GmailAccount[]
   templates     Template[]
   sentEmails    SentEmail[]
+  apiKeys       ApiKey[]
+}
+
+model ApiKey {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name       String
+  keyPrefix  String // préfixe affiché dans l'UI (la clé en clair n'est jamais stockée)
+  keyHash    String    @unique
+  createdAt  DateTime  @default(now())
+  lastUsedAt DateTime?
 }
 
 model Session {
