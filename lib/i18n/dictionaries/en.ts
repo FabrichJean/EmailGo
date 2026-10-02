@@ -374,6 +374,19 @@ const en = {
     sending: "Sending…",
     send: "Send request",
   },
+  docsChat: {
+    trigger: "Ask a question",
+    title: "EmailGo Assistant",
+    subtitle: "AI-generated answers based on the documentation.",
+    close: "Close",
+    placeholder: "Ask a question about EmailGo…",
+    send: "Send",
+    greeting: "Hi! Ask me anything about EmailGo — connecting Gmail, templates, AI generation, sending, the API…",
+    thinking: "Thinking…",
+    errorFallback: "Something went wrong, try again in a moment.",
+    rateLimited: "Too many questions, try again in a few minutes.",
+    clear: "Clear conversation",
+  },
 } satisfies Dictionary;
 
 export default en;
