@@ -235,6 +235,14 @@ export function IconExternalLink({ className }: IconProps) {
   );
 }
 
+export function IconPlay({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" className={className ?? base}>
+      <path d="M8 5.5v13a1 1 0 0 0 1.5.87l11-6.5a1 1 0 0 0 0-1.74l-11-6.5A1 1 0 0 0 8 5.5Z" />
+    </svg>
+  );
+}
+
 export function IconMore({ className }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" className={className ?? base}>
