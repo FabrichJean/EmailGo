@@ -9,10 +9,10 @@ import type { Dictionary } from "@/lib/i18n/dictionaries";
 const NAV_LINKS: { href: string; label: (dict: Dictionary) => string; icon: typeof IconHome }[] = [
   { href: "/", label: (dict) => dict.nav.dashboard, icon: IconHome },
   { href: "/send", label: (dict) => dict.nav.send, icon: IconSend },
+  { href: "/email-service", label: (dict) => dict.nav.emailService, icon: IconCode },
   { href: "/templates", label: (dict) => dict.nav.templates, icon: IconLayout },
   { href: "/connect", label: (dict) => dict.nav.connect, icon: IconPlug },
   { href: "/history", label: (dict) => dict.nav.history, icon: IconHistory },
-  { href: "/email-service", label: (dict) => dict.nav.emailService, icon: IconCode },
 ];
 
 export default function NavLinks({ isAdmin = false }: { isAdmin?: boolean } = {}) {
