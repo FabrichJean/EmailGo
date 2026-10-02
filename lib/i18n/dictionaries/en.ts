@@ -247,6 +247,15 @@ const en = {
       deleteConfirmMismatch: "Email address didn't match — deletion cancelled.",
     },
   },
+  account: {
+    title: "My account",
+    subtitle: "Information about your EmailGo account.",
+    memberSince: "Member since {date}",
+    statAccounts: "Active Gmail accounts",
+    statTemplates: "Templates",
+    statSent: "Emails sent",
+    signOut: "Sign out",
+  },
   sendLimit: {
     title: "Send limit",
     disabled: "Email sending has been disabled for this account by the administrator.",

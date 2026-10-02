@@ -245,6 +245,15 @@ const fr = {
       deleteConfirmMismatch: "Adresse email incorrecte — suppression annulée.",
     },
   },
+  account: {
+    title: "Mon compte",
+    subtitle: "Informations liées à ton compte EmailGo.",
+    memberSince: "Membre depuis le {date}",
+    statAccounts: "Comptes Gmail actifs",
+    statTemplates: "Templates",
+    statSent: "Emails envoyés",
+    signOut: "Déconnexion",
+  },
   sendLimit: {
     title: "Limite d'envoi",
     disabled: "L'envoi d'emails a été désactivé pour ce compte par l'administrateur.",
