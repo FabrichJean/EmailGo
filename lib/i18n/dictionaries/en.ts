@@ -109,6 +109,7 @@ const en = {
       unknownError: "Unknown error",
       save: "Save",
       saving: "Saving…",
+      saved: "Template saved.",
       previewEmpty: "Fill in the body to see the preview.",
       desktopTab: "Desktop",
       mobileTab: "Mobile",
