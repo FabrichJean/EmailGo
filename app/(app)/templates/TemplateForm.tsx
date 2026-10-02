@@ -10,6 +10,7 @@ import { extractVariables } from "@/lib/template";
 import { useI18n } from "../../I18nProvider";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 import { IconDesktop, IconMobile, IconEdit, IconCode, IconLayout } from "../../icons";
+import Select from "../../Select";
 
 type Props = {
   templateId?: string;
@@ -17,7 +18,10 @@ type Props = {
   initialSubject?: string;
   initialBody?: string;
   initialCreatedAt?: string;
+  userEmail?: string;
 };
+
+type Account = { id: string; email: string; isActive: boolean };
 
 export default function TemplateForm({
   templateId,
@@ -25,10 +29,11 @@ export default function TemplateForm({
   initialSubject,
   initialBody,
   initialCreatedAt,
+  userEmail,
 }: Props) {
   const router = useRouter();
   const { dict, locale } = useI18n();
-  const [tab, setTab] = useState<"content" | "settings">("content");
+  const [tab, setTab] = useState<"content" | "settings" | "test">("content");
   const [name, setName] = useState(initialName ?? "");
   const [subject, setSubject] = useState(initialSubject ?? "");
   const [body, setBody] = useState(initialBody ?? "");
@@ -38,6 +43,13 @@ export default function TemplateForm({
   const [bodyEditing, setBodyEditing] = useState(!initialBody);
   const [bodyMode, setBodyMode] = useState<"rich" | "html">("rich");
   const [previewWidth, setPreviewWidth] = useState<"desktop" | "mobile">("desktop");
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [testAccountId, setTestAccountId] = useState("");
+  const [testRecipient, setTestRecipient] = useState(userEmail ?? "");
+  const [testValues, setTestValues] = useState<Record<string, string>>({});
+  const [testSending, setTestSending] = useState(false);
+  const [testError, setTestError] = useState<string | null>(null);
+  const [testSuccess, setTestSuccess] = useState(false);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -57,6 +69,16 @@ export default function TemplateForm({
 
   const variables = useMemo(() => extractVariables(subject, body), [subject, body]);
   const previewBody = useMemo(() => highlightVariables(body), [body]);
+
+  useEffect(() => {
+    fetch("/api/gmail/accounts")
+      .then((r) => r.json())
+      .then((data) => {
+        const active = (data.accounts ?? []).filter((a: Account) => a.isActive);
+        setAccounts(active);
+        setTestAccountId((current) => current || active[0]?.id || "");
+      });
+  }, []);
 
   function switchBodyMode(mode: "rich" | "html") {
     if (mode === bodyMode) return;
@@ -101,6 +123,31 @@ export default function TemplateForm({
     }
   }
 
+  async function handleSendTest() {
+    if (!subject) {
+      setTestError(dict.templates.form.test.missingSubject);
+      return;
+    }
+    setTestSending(true);
+    setTestError(null);
+    setTestSuccess(false);
+    try {
+      const res = await fetch("/api/templates/test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accountId: testAccountId, recipient: testRecipient, subject, body, variables: testValues }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setTestError(data.error ?? dict.templates.form.test.unknownError);
+        return;
+      }
+      setTestSuccess(true);
+    } finally {
+      setTestSending(false);
+    }
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between gap-4">
@@ -120,6 +167,9 @@ export default function TemplateForm({
       <div className="flex gap-2 border-b border-border">
         <TabButton active={tab === "content"} onClick={() => setTab("content")}>
           {dict.templates.form.tabContent}
+        </TabButton>
+        <TabButton active={tab === "test"} onClick={() => setTab("test")}>
+          {dict.templates.form.tabTest}
         </TabButton>
         <TabButton active={tab === "settings"} onClick={() => setTab("settings")}>
           {dict.templates.form.tabSettings}
@@ -236,7 +286,72 @@ export default function TemplateForm({
         {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
       </form>
 
-      <div className={tab === "settings" ? "flex max-w-2xl flex-col gap-4" : "hidden"}>
+
+
+      <div className={tab === "test" ? "flex max-w-2xl flex-col gap-4" : "hidden"}>
+        <section className="card flex flex-col gap-3 p-5">
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">{dict.templates.form.test.subtitle}</p>
+
+          {accounts.length === 0 ? (
+            <p className="text-sm text-zinc-500">{dict.templates.form.test.noAccounts}</p>
+          ) : (
+            <>
+              <label className="flex flex-col gap-1 text-sm text-zinc-700 dark:text-zinc-300">
+                {dict.templates.form.test.accountLabel}
+                <Select
+                  value={testAccountId}
+                  onChange={setTestAccountId}
+                  options={accounts.map((a) => ({ value: a.id, label: a.email }))}
+                />
+              </label>
+              <label className="flex flex-col gap-1 text-sm text-zinc-700 dark:text-zinc-300">
+                {dict.templates.form.test.recipientLabel}
+                <input
+                  type="email"
+                  required
+                  value={testRecipient}
+                  onChange={(e) => setTestRecipient(e.target.value)}
+                  className="input"
+                  placeholder="toi@exemple.com"
+                />
+              </label>
+
+              {variables.length > 0 && (
+                <div className="flex flex-col gap-2">
+                  <p className="text-sm text-zinc-700 dark:text-zinc-300">{dict.templates.form.test.variablesTitle}</p>
+                  <p className="text-xs text-zinc-500">{dict.templates.form.test.variablesHint}</p>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {variables.map((v) => (
+                      <label key={v} className="flex flex-col gap-1 text-xs text-zinc-500">
+                        {`{{${v}}}`}
+                        <input
+                          value={testValues[v] ?? ""}
+                          onChange={(e) => setTestValues((prev) => ({ ...prev, [v]: e.target.value }))}
+                          className="input"
+                        />
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {testError && <p className="text-sm text-red-600 dark:text-red-400">{testError}</p>}
+              {testSuccess && <p className="text-sm text-emerald-600 dark:text-emerald-400">{dict.templates.form.test.success}</p>}
+
+              <button
+                type="button"
+                onClick={handleSendTest}
+                disabled={testSending || !testRecipient || !testAccountId}
+                className="w-fit rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium whitespace-nowrap text-white hover:bg-zinc-700 disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+              >
+                {testSending ? dict.templates.form.test.sending : dict.templates.form.test.sendButton}
+              </button>
+            </>
+          )}
+        </section>
+      </div>
+
+            <div className={tab === "settings" ? "flex max-w-2xl flex-col gap-4" : "hidden"}>
         {!templateId ? (
           <p className="card p-5 text-sm text-zinc-500">{dict.templates.form.settings.newNotice}</p>
         ) : (
