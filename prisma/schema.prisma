@@ -111,3 +111,25 @@ model SentEmail {
   error          String?
   sentAt         DateTime @default(now())
 }
+
+// Historique du chatbot IA de /docs, consultable par l'admin (support/qualité des
+// réponses). sessionId regroupe les messages d'une même conversation côté navigateur
+// (pas de compte utilisateur : la doc est accessible sans connexion).
+model DocsChatConversation {
+  id        String            @id @default(cuid())
+  sessionId String            @unique
+  ip        String?
+  locale    String?
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  messages  DocsChatMessage[]
+}
+
+model DocsChatMessage {
+  id             String               @id @default(cuid())
+  conversationId String
+  conversation   DocsChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String // "user" | "assistant"
+  content        String
+  createdAt      DateTime             @default(now())
+}
