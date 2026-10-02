@@ -5,7 +5,15 @@
 // demande donc un format texte simple à une seule contrainte ("SUBJECT: ..." sur la
 // première ligne), beaucoup plus robuste, pour les deux modes (texte brut ou HTML).
 
+import fs from "node:fs";
+import path from "node:path";
+
 const NVIDIA_ENDPOINT = "https://integrate.api.nvidia.com/v1/chat/completions";
+
+// Base de connaissance de l'assistant /docs : fichier markdown à part (lib/ai/docs-context.md)
+// plutôt qu'une constante en dur, pour pouvoir l'enrichir sans toucher au code. Lu une fois
+// au chargement du module (le serveur tourne en continu, pas de cold start serverless ici).
+const DOCS_CONTEXT = fs.readFileSync(path.join(process.cwd(), "lib/ai/docs-context.md"), "utf-8");
 
 const COMMON_RULES = `Réponds TOUJOURS en commençant par exactement une ligne "SUBJECT: <objet de l'email>", puis une ligne vide, puis uniquement le corps de l'email (rien d'autre avant ou après : pas d'intro, pas de markdown, pas de balises html/head/body).
 Utilise des variables au format {{variable}} (ex: {{prenom}}, {{entreprise}}) pour personnaliser le message selon la description fournie.
@@ -72,36 +80,20 @@ export async function generateTemplate(prompt: string, mode: "text" | "html" = "
   return parseGeneratedTemplate(content);
 }
 
-// Base de connaissance condensée (reflète app/docs/content.fr.tsx) servant de contexte
-// à l'assistant de la page /docs — garde-le à jour avec la doc si elle évolue.
-const DOCS_KNOWLEDGE = `EmailGo est une plateforme de prospection par email qui connecte des comptes Gmail, permet de créer des templates réutilisables (avec génération par IA) et d'envoyer des emails un par un, en masse (CSV, liste), ou par programmation via une API.
-
-Démarrage : /login pour se connecter avec Google (compte créé automatiquement) ; /connect pour relier un ou plusieurs comptes Gmail d'envoi (différents du compte de connexion), en automatique (OAuth Google) ou manuel (mot de passe d'application Google, nécessite la validation en 2 étapes). Les identifiants sont chiffrés avant stockage, jamais en clair.
-
-Templates (/templates) : nom, objet, corps avec variables {{variable}} (ex: {{prenom}}, {{entreprise}}) remplacées à l'envoi. Deux modes d'édition : éditeur visuel (gras, italique, listes, liens) ou HTML brut avec coloration syntaxique. Aperçu Bureau/Mobile en temps réel. Onglet "Test" pour s'envoyer une version de test avec des valeurs de variables choisies. Onglet "Paramètres" : nom, ID, date de création, suppression.
-
-Génération par IA : bouton "Générer avec l'IA" dans l'éditeur de template, avec choix du format (texte ou HTML), à partir d'une simple description en langage naturel. Le brouillon généré reste entièrement modifiable.
-
-Envoi (/send) : choisir un compte Gmail et un template, puis envoyer à un destinataire unique, via une liste d'adresses collée, ou via import CSV (une colonne par variable, une ligne par destinataire).
-
-Historique (/history) : liste de tous les envois (réussis ou échoués) avec destinataire, compte utilisé, template, et raison de l'échec le cas échéant. Filtrable par statut.
-
-Email Service & API (/email-service, /account) : depuis /account, génération d'une clé API (préfixe eg_, affichée en clair une seule fois). Depuis /email-service, création de "services" : un nom, un identifiant (serviceId) et un compte Gmail connecté associé — le service porte déjà le compte d'envoi. L'API publique est POST /api/v1/send, authentifiée par "Authorization: Bearer <clé API>" (pas de JWT), avec un corps JSON { serviceId, templateId, recipient, variables }. Réponse : { success: true } ou { error: "..." } avec un code HTTP. Le service appelé doit appartenir au même compte que la clé API.
-
-Compte (/account) : infos du compte, statistiques (comptes Gmail actifs, templates, emails envoyés), limite d'envoi éventuelle, gestion des clés API, déconnexion.
-
-Administration (/admin, réservé à l'adresse admin, déverrouillage par mot de passe dédié) : statistiques globales de la plateforme, gestion des utilisateurs (bannissement, coupure ou limitation de l'envoi par jour/semaine/mois).
-
-Sécurité : secrets Gmail (refresh token OAuth, mot de passe d'application) chiffrés avant stockage, jamais affichés en clair après connexion.`;
-
 const CHAT_SYSTEM_PROMPT = `Tu es l'assistant de documentation d'EmailGo, une plateforme de prospection par email. Réponds aux questions des visiteurs de façon claire, concise et utile, en te basant UNIQUEMENT sur les informations ci-dessous.
+
+Tu peux t'appuyer sur le bloc "Positionnement et avantages" pour répondre à des questions générales (ex: comparaison avec d'autres outils, pourquoi choisir EmailGo), même s'il n'est lié à aucune section précise de la doc.
 
 Si la question ne concerne pas EmailGo ou si tu ne trouves pas la réponse dans ces informations, dis-le honnêtement plutôt que d'inventer une réponse, et propose de consulter la documentation complète ou de contacter le support.
 
 Réponds dans la même langue que la question posée (français ou anglais). Reste bref (quelques phrases), sans formatage markdown superflu.
 
+Chaque paragraphe lié à une page de doc commence par une balise [#id] indiquant la section correspondante. Termine TOUJOURS ta réponse par une dernière ligne EXACTEMENT au format :
+SOURCES: #id1, #id2
+en listant les identifiants (sans les crochets) des sections que tu as utilisées pour répondre, séparés par des virgules. N'inclus que des ids présents dans les informations ci-dessous. Si aucune section précise ne s'applique (ex: réponse basée sur le positionnement général), écris "SOURCES: none".
+
 --- Informations sur EmailGo ---
-${DOCS_KNOWLEDGE}`;
+${DOCS_CONTEXT}`;
 
 export async function answerDocsQuestion(messages: ChatMessage[]): Promise<string> {
   return callNvidia([{ role: "system", content: CHAT_SYSTEM_PROMPT }, ...messages], {
