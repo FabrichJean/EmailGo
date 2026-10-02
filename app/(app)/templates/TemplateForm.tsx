@@ -6,11 +6,12 @@ import { useEditor, EditorContent, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
-import { extractVariables } from "@/lib/template";
+import { extractVariables, nl2br } from "@/lib/template";
 import { useI18n } from "../../I18nProvider";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
-import { IconDesktop, IconMobile, IconEdit, IconCode, IconLayout } from "../../icons";
+import { IconDesktop, IconMobile, IconEdit, IconCode, IconLayout, IconSparkles } from "../../icons";
 import Select from "../../Select";
+import HtmlCodeEditor from "./HtmlCodeEditor";
 
 type Props = {
   templateId?: string;
@@ -50,6 +51,11 @@ export default function TemplateForm({
   const [testSending, setTestSending] = useState(false);
   const [testError, setTestError] = useState<string | null>(null);
   const [testSuccess, setTestSuccess] = useState(false);
+  const [aiModalOpen, setAiModalOpen] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiGenerating, setAiGenerating] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [aiOutputMode, setAiOutputMode] = useState<"text" | "html">("text");
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -68,7 +74,10 @@ export default function TemplateForm({
   });
 
   const variables = useMemo(() => extractVariables(subject, body), [subject, body]);
-  const previewBody = useMemo(() => highlightVariables(body), [body]);
+  // Même conversion qu'à l'envoi réel (lib/mailer.ts) : les retours à la ligne du texte
+  // brut deviennent des <br>, sans toucher aux retours à la ligne purement structurels
+  // du HTML déjà formaté (entre balises).
+  const previewBody = useMemo(() => highlightVariables(nl2br(body)), [body]);
 
   useEffect(() => {
     fetch("/api/gmail/accounts")
@@ -148,20 +157,70 @@ export default function TemplateForm({
     }
   }
 
+  async function handleGenerate() {
+    if (!aiPrompt.trim()) {
+      setAiError(dict.templates.form.ai.missingPrompt);
+      return;
+    }
+    setAiGenerating(true);
+    setAiError(null);
+    try {
+      const res = await fetch("/api/templates/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: aiPrompt, mode: aiOutputMode }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setAiError(data.error ?? dict.templates.form.ai.unknownError);
+        return;
+      }
+      const generated = data.template as { name: string; subject: string; body: string };
+      setName(generated.name);
+      setSubject(generated.subject);
+      setBody(generated.body);
+      if (aiOutputMode === "html") {
+        setBodyMode("html");
+      } else {
+        editor?.commands.setContent(generated.body);
+        setBodyMode("rich");
+      }
+      setBodyEditing(false);
+      setTab("content");
+      setAiModalOpen(false);
+      setAiPrompt("");
+    } finally {
+      setAiGenerating(false);
+    }
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold text-foreground">
           {templateId ? dict.templates.editTitle : dict.templates.newTitle}
         </h1>
-        <button
-          type="submit"
-          form="template-form"
-          disabled={submitting}
-          className="glow-accent w-fit shrink-0 rounded-md bg-accent px-4 py-2 text-sm font-medium whitespace-nowrap text-accent-foreground hover:opacity-90 disabled:opacity-50"
-        >
-          {submitting ? dict.templates.form.saving : dict.templates.form.save}
-        </button>
+        <div className="flex shrink-0 items-center gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setAiError(null);
+              setAiModalOpen(true);
+            }}
+            className="flex items-center gap-1.5 rounded-md border border-border px-4 py-2 text-sm font-medium whitespace-nowrap text-foreground hover:bg-zinc-100 dark:hover:bg-zinc-900"
+          >
+            <IconSparkles className="h-4 w-4 text-accent" />
+            {dict.templates.form.ai.generateButton}
+          </button>
+          <button
+            type="submit"
+            form="template-form"
+            disabled={submitting}
+            className="glow-accent w-fit shrink-0 rounded-md bg-accent px-4 py-2 text-sm font-medium whitespace-nowrap text-accent-foreground hover:opacity-90 disabled:opacity-50"
+          >
+            {submitting ? dict.templates.form.saving : dict.templates.form.save}
+          </button>
+        </div>
       </div>
 
       <div className="flex gap-2 border-b border-border">
@@ -246,13 +305,7 @@ export default function TemplateForm({
 
             {bodyEditing ? (
               bodyMode === "html" ? (
-                <textarea
-                  value={body}
-                  onChange={(e) => setBody(e.target.value)}
-                  spellCheck={false}
-                  className="min-h-[280px] w-full resize-y bg-transparent p-3 font-mono text-xs text-foreground focus:outline-none"
-                  placeholder="<p>Bonjour {{prenom}}</p>"
-                />
+                <HtmlCodeEditor value={body} onChange={setBody} placeholder="<p>Bonjour {{prenom}}</p>" />
               ) : (
                 <>
                   <EditorToolbar editor={editor} dict={dict} />
@@ -386,6 +439,63 @@ export default function TemplateForm({
           </>
         )}
       </div>
+
+      {aiModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/50" onClick={() => setAiModalOpen(false)} aria-hidden="true" />
+          <div className="card relative z-10 w-full max-w-lg p-5">
+            <h3 className="mb-1 flex items-center gap-2 font-medium text-foreground">
+              <IconSparkles className="h-4 w-4 text-accent" />
+              {dict.templates.form.ai.modalTitle}
+            </h3>
+            {(name || subject || body) && (
+              <p className="mb-3 text-xs text-zinc-500">{dict.templates.form.ai.overwriteWarning}</p>
+            )}
+
+            <div className="mb-3 flex flex-col gap-1 text-sm text-zinc-700 dark:text-zinc-300">
+              {dict.templates.form.ai.formatLabel}
+              <div className="flex w-fit gap-1 rounded-md border border-border p-1">
+                <ViewToggleButton active={aiOutputMode === "text"} onClick={() => setAiOutputMode("text")} icon={IconLayout}>
+                  {dict.templates.form.ai.formatText}
+                </ViewToggleButton>
+                <ViewToggleButton active={aiOutputMode === "html"} onClick={() => setAiOutputMode("html")} icon={IconCode}>
+                  {dict.templates.form.ai.formatHtml}
+                </ViewToggleButton>
+              </div>
+            </div>
+
+            <label className="flex flex-col gap-1 text-sm text-zinc-700 dark:text-zinc-300">
+              {dict.templates.form.ai.promptLabel}
+              <textarea
+                autoFocus
+                value={aiPrompt}
+                onChange={(e) => setAiPrompt(e.target.value)}
+                placeholder={dict.templates.form.ai.promptPlaceholder}
+                className="input min-h-[100px] resize-y"
+              />
+            </label>
+            {aiError && <p className="mt-2 text-sm text-red-600 dark:text-red-400">{aiError}</p>}
+            <div className="mt-4 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setAiModalOpen(false)}
+                className="rounded-md border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-zinc-100 dark:hover:bg-zinc-900"
+              >
+                {dict.templates.form.ai.cancel}
+              </button>
+              <button
+                type="button"
+                onClick={handleGenerate}
+                disabled={aiGenerating}
+                className="glow-accent flex items-center gap-1.5 rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:opacity-90 disabled:opacity-50"
+              >
+                <IconSparkles className="h-4 w-4" />
+                {aiGenerating ? dict.templates.form.ai.generating : dict.templates.form.ai.generate}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -492,8 +602,8 @@ function IframePreview({ html }: { html: string }) {
   }, [html]);
 
   const srcDoc = `<!doctype html><html><head><meta charset="utf-8"><style>
-    body { margin: 0; padding: 16px; font-family: ui-sans-serif, system-ui, sans-serif; font-size: 14px; color: #18181b; }
-    @media (prefers-color-scheme: dark) { body { color: #f4f4f5; } }
+    body { margin: 0; padding: 16px; font-family: ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 1.5; color: #18181b; background: #ffffff; }
+    @media (prefers-color-scheme: dark) { body { color: #f4f4f5; background: #161618; } }
   </style></head><body>${html}</body></html>`;
 
   return (
