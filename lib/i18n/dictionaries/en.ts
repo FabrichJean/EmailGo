@@ -352,6 +352,28 @@ const en = {
     periodMonth: "per month (30d)",
     limitReached: "Limit reached — sending is blocked until the window frees up.",
   },
+  docsPlayground: {
+    trigger: "Playground",
+    modalTitle: "Playground — POST /api/v1/send",
+    close: "Close",
+    introBefore: "Send a real request from your browser, with your own API key (generated from",
+    introAfter: "). Values stay in your browser — nothing is sent anywhere but to EmailGo.",
+    apiKeyLabel: "API key",
+    serviceIdLabel: "Service ID",
+    templateIdLabel: "Template ID",
+    recipientLabel: "Recipient",
+    variablesLabel: "Variables",
+    keyColumn: "Key",
+    valueColumn: "Value",
+    addVariable: "+ Add variable",
+    removeVariable: "Remove variable",
+    requestBody: "Request body",
+    missingFields: "All fields are required (except variables).",
+    networkError: "Network error",
+    responseTitle: "Response — HTTP {status}",
+    sending: "Sending…",
+    send: "Send request",
+  },
 } satisfies Dictionary;
 
 export default en;
