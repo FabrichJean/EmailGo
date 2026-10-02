@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { IconHome, IconPlug, IconLayout, IconSend, IconHistory, IconShield, IconCode } from "./icons";
+import { IconHome, IconPlug, IconLayout, IconSend, IconHistory, IconShield, IconCode, IconBook } from "./icons";
 import { useI18n } from "./I18nProvider";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 
@@ -43,6 +43,15 @@ export default function NavLinks({ isAdmin = false }: { isAdmin?: boolean } = {}
           </Link>
         );
       })}
+      <a
+        href="/docs"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-3 rounded-full px-4 py-3 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900"
+      >
+        <IconBook />
+        {dict.nav.docs}
+      </a>
     </nav>
   );
 }
