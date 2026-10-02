@@ -373,7 +373,7 @@ const fr = {
     send: "Envoyer la requête",
   },
   docsChat: {
-    trigger: "Poser une question",
+    triggerShort: "Demander à l'IA",
     title: "Assistant EmailGo",
     subtitle: "Réponses générées par IA à partir de la documentation.",
     close: "Fermer",

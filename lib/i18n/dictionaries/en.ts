@@ -375,7 +375,7 @@ const en = {
     send: "Send request",
   },
   docsChat: {
-    trigger: "Ask a question",
+    triggerShort: "Ask AI",
     title: "EmailGo Assistant",
     subtitle: "AI-generated answers based on the documentation.",
     close: "Close",
