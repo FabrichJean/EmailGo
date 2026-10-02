@@ -9,7 +9,7 @@ import Link from "@tiptap/extension-link";
 import { extractVariables, nl2br } from "@/lib/template";
 import { useI18n } from "../../I18nProvider";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
-import { IconDesktop, IconMobile, IconEdit, IconCode, IconLayout, IconSparkles } from "../../icons";
+import { IconDesktop, IconMobile, IconEdit, IconCode, IconLayout, IconSparkles, IconCheck } from "../../icons";
 import Select from "../../Select";
 import HtmlCodeEditor from "./HtmlCodeEditor";
 
@@ -38,8 +38,10 @@ export default function TemplateForm({
   const [name, setName] = useState(initialName ?? "");
   const [subject, setSubject] = useState(initialSubject ?? "");
   const [body, setBody] = useState(initialBody ?? "");
+  const [currentTemplateId, setCurrentTemplateId] = useState(templateId);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [bodyEditing, setBodyEditing] = useState(!initialBody);
   const [bodyMode, setBodyMode] = useState<"rich" | "html">("rich");
@@ -100,8 +102,8 @@ export default function TemplateForm({
     setSubmitting(true);
     setError(null);
     try {
-      const url = templateId ? `/api/templates/${templateId}` : "/api/templates";
-      const method = templateId ? "PATCH" : "POST";
+      const url = currentTemplateId ? `/api/templates/${currentTemplateId}` : "/api/templates";
+      const method = currentTemplateId ? "PATCH" : "POST";
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
@@ -112,7 +114,14 @@ export default function TemplateForm({
         setError(data.error ?? dict.templates.form.unknownError);
         return;
       }
-      router.push("/templates");
+      if (!currentTemplateId) {
+        // Adopte l'id du template tout juste créé pour que les prochains enregistrements
+        // le mettent à jour (PATCH) au lieu d'en recréer un nouveau à chaque clic.
+        setCurrentTemplateId(data.template.id);
+        window.history.replaceState(null, "", `/templates/${data.template.id}`);
+      }
+      setSaved(true);
+      window.setTimeout(() => setSaved(false), 3000);
       router.refresh();
     } finally {
       setSubmitting(false);
@@ -120,11 +129,11 @@ export default function TemplateForm({
   }
 
   async function handleDelete() {
-    if (!templateId) return;
+    if (!currentTemplateId) return;
     if (!confirm(dict.templates.deleteConfirm)) return;
     setDeleting(true);
     try {
-      await fetch(`/api/templates/${templateId}`, { method: "DELETE" });
+      await fetch(`/api/templates/${currentTemplateId}`, { method: "DELETE" });
       router.push("/templates");
       router.refresh();
     } finally {
@@ -198,9 +207,15 @@ export default function TemplateForm({
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold text-foreground">
-          {templateId ? dict.templates.editTitle : dict.templates.newTitle}
+          {currentTemplateId ? dict.templates.editTitle : dict.templates.newTitle}
         </h1>
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 items-center gap-3">
+          {saved && (
+            <p className="flex items-center gap-1 text-sm text-emerald-600 dark:text-emerald-400">
+              <IconCheck className="h-4 w-4" />
+              {dict.templates.form.saved}
+            </p>
+          )}
           <button
             type="button"
             onClick={() => {
@@ -216,9 +231,10 @@ export default function TemplateForm({
             type="submit"
             form="template-form"
             disabled={submitting}
-            className="glow-accent w-fit shrink-0 rounded-md bg-accent px-4 py-2 text-sm font-medium whitespace-nowrap text-accent-foreground hover:opacity-90 disabled:opacity-50"
+            className="glow-accent relative w-fit shrink-0 overflow-hidden rounded-md bg-accent px-4 py-2 text-sm font-medium whitespace-nowrap text-accent-foreground hover:opacity-90 disabled:opacity-50"
           >
-            {submitting ? dict.templates.form.saving : dict.templates.form.save}
+            {submitting && <span aria-hidden="true" className="btn-shimmer" />}
+            <span className="relative">{dict.templates.form.save}</span>
           </button>
         </div>
       </div>
@@ -405,7 +421,7 @@ export default function TemplateForm({
       </div>
 
             <div className={tab === "settings" ? "flex max-w-2xl flex-col gap-4" : "hidden"}>
-        {!templateId ? (
+        {!currentTemplateId ? (
           <p className="card p-5 text-sm text-zinc-500">{dict.templates.form.settings.newNotice}</p>
         ) : (
           <>
@@ -416,7 +432,7 @@ export default function TemplateForm({
               </div>
               <div className="flex items-center justify-between gap-4 text-sm">
                 <span className="shrink-0 text-zinc-500">{dict.templates.form.settings.idLabel}</span>
-                <code className="truncate font-mono text-xs text-foreground">{templateId}</code>
+                <code className="truncate font-mono text-xs text-foreground">{currentTemplateId}</code>
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-zinc-500">{dict.templates.form.settings.createdLabel}</span>
