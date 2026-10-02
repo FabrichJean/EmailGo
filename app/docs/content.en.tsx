@@ -47,7 +47,6 @@ export const NAV: NavGroup[] = [
 
 export const strings = {
   docsBadge: "Docs",
-  openApp: "Open the app",
   readyTitle: "Ready to send your first email?",
   openEmailGo: "Open EmailGo",
 };
