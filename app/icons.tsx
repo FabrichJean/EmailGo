@@ -141,6 +141,23 @@ export function IconLogout({ className }: IconProps) {
   );
 }
 
+export function IconCode({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className={className ?? base}>
+      <path d="m9 8-4 4 4 4" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="m15 8 4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function IconTrash({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className={className ?? base}>
+      <path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m2 0-.8 12.2a1 1 0 0 1-1 .8H8.8a1 1 0 0 1-1-.8L7 7" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 export function IconMore({ className }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" className={className ?? base}>
