@@ -1,12 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Select from "../../Select";
 import { useI18n } from "../../I18nProvider";
-import { IconCode, IconTrash } from "../../icons";
+import { IconCode, IconTrash, IconCopy, IconCheck, IconEdit, IconMore } from "../../icons";
 
 type Account = { id: string; email: string; isActive: boolean };
-type Service = { id: string; name: string; serviceId: string; gmailAccount: { email: string } };
+type Service = {
+  id: string;
+  name: string;
+  serviceId: string;
+  gmailAccountId: string;
+  gmailAccount: { email: string };
+};
 
 function slugify(value: string): string {
   return value
@@ -28,6 +34,7 @@ export default function ServicesManager() {
   const [services, setServices] = useState<Service[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [hashPrefix, setHashPrefix] = useState("");
   const [serviceId, setServiceId] = useState("");
@@ -35,6 +42,7 @@ export default function ServicesManager() {
   const [gmailAccountId, setGmailAccountId] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   async function loadServices() {
     const res = await fetch("/api/services");
@@ -49,8 +57,18 @@ export default function ServicesManager() {
       .then((data) => setAccounts((data.accounts ?? []).filter((a: Account) => a.isActive)));
   }, []);
 
-  function openModal() {
+  function openCreateModal() {
+    setEditingId(null);
     setHashPrefix(generateHashPrefix());
+    setModalOpen(true);
+  }
+
+  function openEditModal(service: Service) {
+    setEditingId(service.id);
+    setName(service.name);
+    setServiceId(service.serviceId);
+    setServiceIdTouched(true);
+    setGmailAccountId(service.gmailAccountId);
     setModalOpen(true);
   }
 
@@ -61,6 +79,7 @@ export default function ServicesManager() {
 
   function closeModal() {
     setModalOpen(false);
+    setEditingId(null);
     setName("");
     setHashPrefix("");
     setServiceId("");
@@ -69,13 +88,13 @@ export default function ServicesManager() {
     setError(null);
   }
 
-  async function handleCreate(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
     setError(null);
     try {
-      const res = await fetch("/api/services", {
-        method: "POST",
+      const res = await fetch(editingId ? `/api/services/${editingId}` : "/api/services", {
+        method: editingId ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, serviceId, gmailAccountId }),
       });
@@ -97,6 +116,12 @@ export default function ServicesManager() {
     await loadServices();
   }
 
+  async function handleCopy(value: string) {
+    await navigator.clipboard.writeText(value);
+    setCopiedId(value);
+    setTimeout(() => setCopiedId((current) => (current === value ? null : current)), 1500);
+  }
+
   return (
     <section className="card p-5">
       <div className="mb-4 flex items-center justify-between">
@@ -106,7 +131,7 @@ export default function ServicesManager() {
         </div>
         <button
           type="button"
-          onClick={openModal}
+          onClick={openCreateModal}
           className="w-fit shrink-0 rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium whitespace-nowrap text-white hover:bg-zinc-700 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
         >
           {d.newService}
@@ -121,7 +146,8 @@ export default function ServicesManager() {
             <li
               key={service.id}
               title={service.gmailAccount.email}
-              className="group flex items-center gap-3 rounded-xl border border-border bg-surface px-3 py-2.5"
+              onClick={() => openEditModal(service)}
+              className="group flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-surface px-3 py-2.5"
             >
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent/15 text-accent">
                 <IconCode className="h-4 w-4" />
@@ -130,14 +156,15 @@ export default function ServicesManager() {
                 <p className="truncate text-sm font-semibold text-foreground">{service.name}</p>
                 <code className="block truncate font-mono text-[11px] text-zinc-500">{service.serviceId}</code>
               </div>
-              <button
-                onClick={() => handleDelete(service.id)}
-                aria-label={d.delete}
-                title={d.delete}
-                className="shrink-0 rounded-md p-1.5 text-zinc-400 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-50 hover:text-red-600 focus:opacity-100 dark:hover:bg-red-900/20"
-              >
-                <IconTrash className="h-4 w-4" />
-              </button>
+              <div onClick={(e) => e.stopPropagation()}>
+                <ServiceMenu
+                  copied={copiedId === service.serviceId}
+                  labels={d}
+                  onCopy={() => handleCopy(service.serviceId)}
+                  onEdit={() => openEditModal(service)}
+                  onDelete={() => handleDelete(service.id)}
+                />
+              </div>
             </li>
           ))}
         </ul>
@@ -147,8 +174,8 @@ export default function ServicesManager() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="fixed inset-0 bg-black/50" onClick={closeModal} aria-hidden="true" />
           <div className="card relative z-10 w-full max-w-md p-5">
-            <h3 className="mb-4 font-medium text-foreground">{d.modalTitle}</h3>
-            <form onSubmit={handleCreate} className="flex flex-col gap-3">
+            <h3 className="mb-4 font-medium text-foreground">{editingId ? d.editModalTitle : d.modalTitle}</h3>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
               <Field label={d.nameLabel}>
                 <input
                   type="text"
@@ -196,7 +223,7 @@ export default function ServicesManager() {
                   disabled={submitting || !gmailAccountId}
                   className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
                 >
-                  {submitting ? d.creating : d.create}
+                  {editingId ? (submitting ? d.saving : d.save) : submitting ? d.creating : d.create}
                 </button>
               </div>
             </form>
@@ -213,5 +240,80 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       {label}
       {children}
     </label>
+  );
+}
+
+function ServiceMenu({
+  copied,
+  labels,
+  onCopy,
+  onEdit,
+  onDelete,
+}: {
+  copied: boolean;
+  labels: { copy: string; copied: string; edit: string; delete: string };
+  onCopy: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function onClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, []);
+
+  return (
+    <div ref={ref} className="relative shrink-0">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className={`rounded-md p-1.5 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 ${
+          open ? "bg-zinc-100 text-foreground opacity-100 dark:bg-zinc-800" : "text-zinc-400 opacity-0 hover:bg-zinc-100 hover:text-foreground dark:hover:bg-zinc-800"
+        }`}
+      >
+        <IconMore className="h-4 w-4" />
+      </button>
+
+      {open && (
+        <div className="absolute top-full right-0 z-20 mt-1 w-40 rounded-lg border border-border bg-surface p-1 shadow-lg">
+          <button
+            type="button"
+            onClick={onCopy}
+            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-foreground hover:bg-zinc-100 dark:hover:bg-zinc-900"
+          >
+            {copied ? <IconCheck className="h-4 w-4 text-emerald-600" /> : <IconCopy className="h-4 w-4" />}
+            {copied ? labels.copied : labels.copy}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              onEdit();
+              setOpen(false);
+            }}
+            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-foreground hover:bg-zinc-100 dark:hover:bg-zinc-900"
+          >
+            <IconEdit className="h-4 w-4" />
+            {labels.edit}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              onDelete();
+              setOpen(false);
+            }}
+            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
+          >
+            <IconTrash className="h-4 w-4" />
+            {labels.delete}
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
