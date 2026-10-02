@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { IconSend, IconPlug, IconShield, IconChevronRight } from "../icons";
+import CodeBlockHighlighted from "./CodeBlock";
+import CodeTabs from "./CodeTabs";
+import Playground from "./Playground";
 
 export const metadata: Metadata = {
   title: "Documentation — EmailGo",
@@ -209,31 +212,80 @@ export default function DocsPage() {
 
             <h3 className="mt-6 mb-2 text-sm font-semibold text-foreground">Authentification</h3>
             <p>Transmets ta clé dans l&apos;en-tête de chaque requête :</p>
-            <CodeBlock>{`Authorization: Bearer eg_xxxxxxxxxxxxxxxxxxxxxxxx`}</CodeBlock>
-
-            <h3 className="mt-6 mb-2 text-sm font-semibold text-foreground">Endpoint</h3>
-            <CodeBlock>{`POST /api/v1/send`}</CodeBlock>
-
-            <h3 className="mt-6 mb-2 text-sm font-semibold text-foreground">Exemple</h3>
-            <CodeBlock>{`curl -X POST https://ton-domaine.com/api/v1/send \\
-  -H "Authorization: Bearer eg_xxxxxxxxxxxxxxxxxxxxxxxx" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "accountId": "ID du compte Gmail (voir /connect)",
-    "templateId": "ID du template (voir l'onglet Paramètres du template)",
-    "recipient": "destinataire@exemple.com",
-    "variables": { "prenom": "Alex" }
-  }'`}</CodeBlock>
-            <p className="mt-3 text-sm text-zinc-500">
-              Réponse : <Code>{'{ "success": true }'}</Code> ou <Code>{'{ "error": "..." }'}</Code> avec un code HTTP
-              correspondant.
-            </p>
+            <CodeBlockHighlighted lang="bash" code={`Authorization: Bearer eg_xxxxxxxxxxxxxxxxxxxxxxxx`} />
 
             <h3 className="mt-6 mb-2 text-sm font-semibold text-foreground">Services</h3>
             <p>
-              Depuis <Code>/email-service</Code>, organise tes intégrations : donne un nom et un identifiant à chaque
-              service (ex. &laquo;&nbsp;Notifications support&nbsp;&raquo;), associé à un compte Gmail — pratique
-              pour t&apos;y retrouver quand plusieurs applications envoient des emails via ton compte.
+              Avant d&apos;envoyer, crée un <strong className="text-foreground">service</strong> depuis{" "}
+              <Code>/email-service</Code> : un nom, un identifiant (<Code>serviceId</Code>, pré-rempli et modifiable)
+              et un compte Gmail connecté. Le service porte déjà le compte d&apos;envoi — l&apos;API n&apos;a donc
+              besoin que de son identifiant, jamais d&apos;un ID de compte Gmail brut.
+            </p>
+
+            <h3 className="mt-6 mb-2 text-sm font-semibold text-foreground">Endpoint</h3>
+            <CodeBlockHighlighted lang="bash" code={`POST /api/v1/send`} />
+
+            <div className="mt-6 mb-2 flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-foreground">Exemple</h3>
+              <Playground />
+            </div>
+            <CodeTabs
+              snippets={[
+                {
+                  label: "cURL",
+                  lang: "bash",
+                  code: `curl -X POST https://ton-domaine.com/api/v1/send \\
+  -H "Authorization: Bearer eg_xxxxxxxxxxxxxxxxxxxxxxxx" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "serviceId": "notifications-support-a1b2c3d4",
+    "templateId": "cmur4dgmz00003hjxwrbjymx8",
+    "recipient": "destinataire@exemple.com",
+    "variables": { "prenom": "Alex" }
+  }'`,
+                },
+                {
+                  label: "JavaScript",
+                  lang: "javascript",
+                  code: `const res = await fetch("https://ton-domaine.com/api/v1/send", {
+  method: "POST",
+  headers: {
+    Authorization: "Bearer eg_xxxxxxxxxxxxxxxxxxxxxxxx",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    serviceId: "notifications-support-a1b2c3d4",
+    templateId: "cmur4dgmz00003hjxwrbjymx8",
+    recipient: "destinataire@exemple.com",
+    variables: { prenom: "Alex" },
+  }),
+});
+
+const data = await res.json();`,
+                },
+                {
+                  label: "Python",
+                  lang: "python",
+                  code: `import requests
+
+response = requests.post(
+    "https://ton-domaine.com/api/v1/send",
+    headers={"Authorization": "Bearer eg_xxxxxxxxxxxxxxxxxxxxxxxx"},
+    json={
+        "serviceId": "notifications-support-a1b2c3d4",
+        "templateId": "cmur4dgmz00003hjxwrbjymx8",
+        "recipient": "destinataire@exemple.com",
+        "variables": {"prenom": "Alex"},
+    },
+)
+
+print(response.json())`,
+                },
+              ]}
+            />
+            <p className="mt-3 text-sm text-zinc-500">
+              Réponse : <Code>{'{ "success": true }'}</Code> ou <Code>{'{ "error": "..." }'}</Code> avec un code HTTP
+              correspondant. Le service doit appartenir au même compte que la clé API utilisée.
             </p>
           </DocSection>
 
@@ -367,13 +419,5 @@ function Faq({ q, children }: { q: string; children: React.ReactNode }) {
 function Code({ children }: { children: React.ReactNode }) {
   return (
     <code className="rounded bg-accent/10 px-1.5 py-0.5 font-mono text-[0.85em] text-accent">{children}</code>
-  );
-}
-
-function CodeBlock({ children }: { children: string }) {
-  return (
-    <pre className="overflow-x-auto rounded-md border border-border bg-zinc-50 p-3 text-xs dark:bg-zinc-900">
-      <code className="font-mono text-foreground">{children}</code>
-    </pre>
   );
 }
