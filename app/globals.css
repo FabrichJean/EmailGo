@@ -163,3 +163,37 @@ body::after {
     animation: none;
   }
 }
+
+/* Coloration syntaxique du corps HTML brut (templates), via prismjs. */
+.code-highlight .token.tag,
+.code-highlight .token.doctype,
+.code-highlight .token.entity {
+  color: var(--accent);
+}
+
+.code-highlight .token.attr-name {
+  color: #0ea5e9;
+}
+
+.dark .code-highlight .token.attr-name {
+  color: #38bdf8;
+}
+
+.code-highlight .token.attr-value,
+.code-highlight .token.string {
+  color: #16a34a;
+}
+
+.dark .code-highlight .token.attr-value,
+.dark .code-highlight .token.string {
+  color: #4ade80;
+}
+
+.code-highlight .token.comment {
+  color: #71717a;
+  font-style: italic;
+}
+
+.code-highlight .token.punctuation {
+  color: #71717a;
+}
