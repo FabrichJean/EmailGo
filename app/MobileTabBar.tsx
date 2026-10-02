@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { IconHome, IconSend, IconLayout, IconPlug, IconHistory, IconMore, IconShield } from "./icons";
+import { IconHome, IconSend, IconLayout, IconPlug, IconHistory, IconMore, IconShield, IconCode } from "./icons";
 import LanguageToggle from "./LanguageToggle";
 import ThemeToggle from "./ThemeToggle";
 import SidebarUser, { type SidebarUserInfo } from "./SidebarUser";
@@ -35,6 +35,14 @@ export default function MobileTabBar({ user, isAdmin }: { user: SidebarUserInfo;
       {settingsOpen && (
         <div className="fixed right-3 bottom-20 left-3 z-50 flex flex-col gap-2 md:hidden">
           <SidebarUser user={user} signOutLabel={dict.sidebar.signOut} />
+          <Link
+            href="/email-service"
+            onClick={() => setSettingsOpen(false)}
+            className="card flex items-center gap-3 px-4 py-3 text-sm font-medium text-foreground"
+          >
+            <IconCode className="h-4 w-4 text-accent" />
+            {dict.nav.emailService}
+          </Link>
           {isAdmin && (
             <Link
               href="/admin"

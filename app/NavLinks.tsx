@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { IconHome, IconPlug, IconLayout, IconSend, IconHistory, IconShield } from "./icons";
+import { IconHome, IconPlug, IconLayout, IconSend, IconHistory, IconShield, IconCode } from "./icons";
 import { useI18n } from "./I18nProvider";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 
@@ -12,6 +12,7 @@ const NAV_LINKS: { href: string; label: (dict: Dictionary) => string; icon: type
   { href: "/templates", label: (dict) => dict.nav.templates, icon: IconLayout },
   { href: "/connect", label: (dict) => dict.nav.connect, icon: IconPlug },
   { href: "/history", label: (dict) => dict.nav.history, icon: IconHistory },
+  { href: "/email-service", label: (dict) => dict.nav.emailService, icon: IconCode },
 ];
 
 export default function NavLinks({ isAdmin = false }: { isAdmin?: boolean } = {}) {
