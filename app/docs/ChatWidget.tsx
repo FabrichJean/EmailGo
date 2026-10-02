@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useI18n } from "../I18nProvider";
-import { IconChat, IconSend, IconTrash, IconSparkles } from "../icons";
+import { IconSend, IconTrash, IconSparkles } from "../icons";
 
 type Message = { role: "user" | "assistant"; content: string };
 
@@ -25,10 +25,19 @@ export default function ChatWidget() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, sending]);
+
+  useEffect(() => {
+    function onClickOutside(e: MouseEvent) {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, []);
 
   async function handleSend(e: React.FormEvent) {
     e.preventDefault();
@@ -66,18 +75,19 @@ export default function ChatWidget() {
   }
 
   return (
-    <>
+    <div ref={rootRef} className="relative">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        aria-label={d.trigger}
-        className="glow-accent fixed right-5 bottom-5 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-accent text-accent-foreground hover:opacity-90"
+        aria-expanded={open}
+        className="glow-accent flex items-center gap-1.5 rounded-md bg-accent px-4 py-2 text-sm font-medium whitespace-nowrap text-accent-foreground hover:opacity-90"
       >
-        <IconChat className="h-5 w-5" />
+        <IconSparkles className="h-4 w-4" />
+        {d.triggerShort}
       </button>
 
       {open && (
-        <div className="card fixed right-5 bottom-20 z-40 flex h-[32rem] max-h-[70vh] w-[22rem] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden shadow-xl">
+        <div className="card absolute top-full right-0 z-30 mt-2 flex h-[32rem] max-h-[70vh] w-[22rem] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden shadow-xl">
           <div className="flex items-center justify-between border-b border-border p-3">
             <div className="flex items-center gap-2">
               <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent/15 text-accent">
@@ -150,7 +160,7 @@ export default function ChatWidget() {
           </form>
         </div>
       )}
-    </>
+    </div>
   );
 }
 
@@ -160,9 +170,7 @@ function Bubble({ role, children }: { role: "user" | "assistant"; children: Reac
     <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
       <div
         className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm whitespace-pre-wrap ${
-          isUser
-            ? "bg-accent text-accent-foreground"
-            : "bg-zinc-100 text-foreground dark:bg-zinc-900"
+          isUser ? "bg-accent text-accent-foreground" : "bg-zinc-100 text-foreground dark:bg-zinc-900"
         }`}
       >
         {children}
