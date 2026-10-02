@@ -350,6 +350,28 @@ const fr = {
     periodMonth: "par mois (30j)",
     limitReached: "Limite atteinte — les envois sont bloqués jusqu'à ce que la fenêtre se libère.",
   },
+  docsPlayground: {
+    trigger: "Playground",
+    modalTitle: "Playground — POST /api/v1/send",
+    close: "Fermer",
+    introBefore: "Envoie une vraie requête depuis ton navigateur, avec ta propre clé API (générée depuis",
+    introAfter: "). Les valeurs restent dans ton navigateur, rien n'est transmis ailleurs que vers EmailGo.",
+    apiKeyLabel: "Clé API",
+    serviceIdLabel: "Service ID",
+    templateIdLabel: "Template ID",
+    recipientLabel: "Destinataire",
+    variablesLabel: "Variables",
+    keyColumn: "Clé",
+    valueColumn: "Valeur",
+    addVariable: "+ Ajouter une variable",
+    removeVariable: "Supprimer la variable",
+    requestBody: "Corps de la requête",
+    missingFields: "Tous les champs sont requis (sauf les variables).",
+    networkError: "Erreur réseau",
+    responseTitle: "Réponse — HTTP {status}",
+    sending: "Envoi…",
+    send: "Envoyer la requête",
+  },
 };
 
 export default fr;
