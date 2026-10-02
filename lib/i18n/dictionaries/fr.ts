@@ -372,6 +372,20 @@ const fr = {
     sending: "Envoi…",
     send: "Envoyer la requête",
   },
+  docsChat: {
+    trigger: "Poser une question",
+    title: "Assistant EmailGo",
+    subtitle: "Réponses générées par IA à partir de la documentation.",
+    close: "Fermer",
+    placeholder: "Pose une question sur EmailGo…",
+    send: "Envoyer",
+    greeting:
+      "Salut ! Pose-moi une question sur EmailGo — connexion Gmail, templates, génération par IA, envoi, API…",
+    thinking: "Réflexion…",
+    errorFallback: "Une erreur est survenue, réessaie dans un instant.",
+    rateLimited: "Trop de questions, réessaie dans quelques minutes.",
+    clear: "Effacer la conversation",
+  },
 };
 
 export default fr;
