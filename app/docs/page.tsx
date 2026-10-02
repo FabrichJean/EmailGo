@@ -35,12 +35,7 @@ export default async function DocsPage() {
           </a>
           <div className="flex items-center gap-2">
             <DocsLanguageToggle />
-            <Link
-              href="/"
-              className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium whitespace-nowrap text-white hover:bg-zinc-700 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
-            >
-              {strings.openApp}
-            </Link>
+            <ChatWidget />
           </div>
         </div>
       </header>
@@ -83,8 +78,6 @@ export default async function DocsPage() {
           </div>
         </main>
       </div>
-
-      <ChatWidget />
     </div>
   );
 }
