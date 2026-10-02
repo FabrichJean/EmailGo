@@ -205,6 +205,15 @@ export function IconMobile({ className }: IconProps) {
   );
 }
 
+export function IconSparkles({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" className={className ?? base}>
+      <path d="M11 2.5c.4 2.7 1 4.3 2 5.3s2.6 1.6 5.3 2c-2.7.4-4.3 1-5.3 2s-1.6 2.6-2 5.3c-.4-2.7-1-4.3-2-5.3s-2.6-1.6-5.3-2c2.7-.4 4.3-1 5.3-2s1.6-2.6 2-5.3Z" />
+      <path d="M19 15.2c.2 1.3.5 2.1 1 2.6s1.3.8 2.6 1c-1.3.2-2.1.5-2.6 1s-.8 1.3-1 2.6c-.2-1.3-.5-2.1-1-2.6s-1.3-.8-2.6-1c1.3-.2 2.1-.5 2.6-1s.8-1.3 1-2.6Z" />
+    </svg>
+  );
+}
+
 export function IconMore({ className }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" className={className ?? base}>
