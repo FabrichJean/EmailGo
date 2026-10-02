@@ -116,6 +116,7 @@ const fr = {
       doneEditing: "Aperçu",
       tabContent: "Contenu",
       tabSettings: "Paramètres",
+      tabTest: "Test",
       settings: {
         nameLabel: "Nom",
         idLabel: "ID",
@@ -124,6 +125,19 @@ const fr = {
         dangerDescription: "La suppression de ce template est irréversible.",
         deleteButton: "Supprimer le template",
         newNotice: "Enregistre d'abord le template pour accéder à ces paramètres.",
+      },
+      test: {
+        subtitle: "Envoie ce template à une adresse de test pour vérifier son rendu réel dans une boîte mail.",
+        accountLabel: "Envoyer depuis",
+        noAccounts: "Aucun compte Gmail connecté — connecte-en un depuis la page Connexion Gmail.",
+        recipientLabel: "Adresse de test",
+        variablesTitle: "Valeurs des variables",
+        variablesHint: "Laisse vide pour envoyer {{variable}} tel quel.",
+        sendButton: "Envoyer le test",
+        sending: "Envoi…",
+        success: "Email de test envoyé.",
+        missingSubject: "Renseigne au moins l'objet avant d'envoyer un test.",
+        unknownError: "Erreur inconnue",
       },
       toolbar: {
         bold: "Gras",
