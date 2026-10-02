@@ -243,6 +243,18 @@ export function IconPlay({ className }: IconProps) {
   );
 }
 
+export function IconChat({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className={className ?? base}>
+      <path
+        d="M4 12a8 8 0 1 1 3.4 6.5L4 19.5l1-3.3A7.96 7.96 0 0 1 4 12Z"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export function IconMore({ className }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" className={className ?? base}>
