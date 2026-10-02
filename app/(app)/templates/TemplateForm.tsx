@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useEditor, EditorContent, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -9,6 +9,7 @@ import Link from "@tiptap/extension-link";
 import { extractVariables } from "@/lib/template";
 import { useI18n } from "../../I18nProvider";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
+import { IconDesktop, IconMobile, IconEdit, IconCode, IconLayout } from "../../icons";
 
 type Props = {
   templateId?: string;
@@ -34,6 +35,9 @@ export default function TemplateForm({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [bodyEditing, setBodyEditing] = useState(!initialBody);
+  const [bodyMode, setBodyMode] = useState<"rich" | "html">("rich");
+  const [previewWidth, setPreviewWidth] = useState<"desktop" | "mobile">("desktop");
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -52,8 +56,13 @@ export default function TemplateForm({
   });
 
   const variables = useMemo(() => extractVariables(subject, body), [subject, body]);
-  const previewSubject = useMemo(() => highlightVariables(subject), [subject]);
   const previewBody = useMemo(() => highlightVariables(body), [body]);
+
+  function switchBodyMode(mode: "rich" | "html") {
+    if (mode === bodyMode) return;
+    if (mode === "rich") editor?.commands.setContent(body);
+    setBodyMode(mode);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -117,67 +126,115 @@ export default function TemplateForm({
         </TabButton>
       </div>
 
-      <div className={tab === "content" ? "grid gap-6 lg:grid-cols-[1fr_360px]" : "hidden"}>
-        <form id="template-form" onSubmit={handleSubmit} className="card flex flex-col gap-3 p-5">
-          <label className="flex flex-col gap-1 text-sm text-zinc-700 dark:text-zinc-300">
-            {dict.templates.form.nameLabel}
-            <input
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="input"
-              placeholder={dict.templates.form.namePlaceholder}
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm text-zinc-700 dark:text-zinc-300">
-            {dict.templates.form.subjectLabel}
-            <input
-              required
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-              className="input"
-              placeholder={dict.templates.form.subjectPlaceholder}
-            />
-          </label>
-          <div className="flex flex-col gap-1 text-sm text-zinc-700 dark:text-zinc-300">
-            {dict.templates.form.bodyLabel}
-            <EditorToolbar editor={editor} dict={dict} />
-            <EditorContent
-              editor={editor}
-              className="input rounded-t-none focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-accent"
-            />
-          </div>
-          <p className="text-xs text-zinc-500">{dict.templates.form.helpText}</p>
-          {variables.length > 0 && (
-            <p className="text-xs text-zinc-500">
-              {dict.templates.form.variablesDetected} {variables.map((v) => `{{${v}}}`).join(", ")}
-            </p>
-          )}
-          {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
-        </form>
-
-        <aside className="card flex h-fit flex-col gap-3 p-5 lg:sticky lg:top-6">
-          <h2 className="font-medium text-foreground">{dict.templates.form.previewTitle}</h2>
-          {!subject && !body ? (
-            <p className="text-sm text-zinc-500">{dict.templates.form.previewEmpty}</p>
-          ) : (
-            <div className="overflow-hidden rounded-lg border border-border">
-              <div className="border-b border-border bg-zinc-50 px-4 py-3 dark:bg-zinc-900">
-                <p
-                  className="truncate text-sm font-medium text-foreground"
-                  dangerouslySetInnerHTML={{
-                    __html: previewSubject || dict.templates.form.previewNoSubject,
-                  }}
-                />
+      <form
+        id="template-form"
+        onSubmit={handleSubmit}
+        className={tab === "content" ? "card flex max-w-2xl flex-col gap-3 p-5" : "hidden"}
+      >
+        <label className="flex flex-col gap-1 text-sm text-zinc-700 dark:text-zinc-300">
+          {dict.templates.form.nameLabel}
+          <input
+            required
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="input"
+            placeholder={dict.templates.form.namePlaceholder}
+          />
+        </label>
+        <label className="flex flex-col gap-1 text-sm text-zinc-700 dark:text-zinc-300">
+          {dict.templates.form.subjectLabel}
+          <input
+            required
+            value={subject}
+            onChange={(e) => setSubject(e.target.value)}
+            className="input"
+            placeholder={dict.templates.form.subjectPlaceholder}
+          />
+        </label>
+        <div className="flex flex-col gap-1 text-sm text-zinc-700 dark:text-zinc-300">
+          {dict.templates.form.bodyLabel}
+          <div className="overflow-hidden rounded-md border border-border">
+            <div className="flex items-center justify-between gap-2 border-b border-border bg-zinc-50 p-1 dark:bg-zinc-900">
+              <div className="flex items-center gap-1">
+                {bodyEditing ? (
+                  <>
+                    <ViewToggleButton active={bodyMode === "rich"} onClick={() => switchBodyMode("rich")} icon={IconLayout}>
+                      {dict.templates.form.visualTab}
+                    </ViewToggleButton>
+                    <ViewToggleButton active={bodyMode === "html"} onClick={() => switchBodyMode("html")} icon={IconCode}>
+                      {dict.templates.form.htmlTab}
+                    </ViewToggleButton>
+                  </>
+                ) : (
+                  <>
+                    <ViewToggleButton
+                      active={previewWidth === "desktop"}
+                      onClick={() => setPreviewWidth("desktop")}
+                      icon={IconDesktop}
+                    >
+                      {dict.templates.form.desktopTab}
+                    </ViewToggleButton>
+                    <ViewToggleButton
+                      active={previewWidth === "mobile"}
+                      onClick={() => setPreviewWidth("mobile")}
+                      icon={IconMobile}
+                    >
+                      {dict.templates.form.mobileTab}
+                    </ViewToggleButton>
+                  </>
+                )}
               </div>
-              <div
-                className="prose prose-sm dark:prose-invert max-w-none p-4"
-                dangerouslySetInnerHTML={{ __html: previewBody }}
-              />
+              <button
+                type="button"
+                onClick={() => setBodyEditing((v) => !v)}
+                className="flex items-center gap-1.5 rounded px-2 py-1 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+              >
+                <IconEdit className="h-3.5 w-3.5" />
+                {bodyEditing ? dict.templates.form.doneEditing : dict.templates.form.editContent}
+              </button>
             </div>
-          )}
-        </aside>
-      </div>
+
+            {bodyEditing ? (
+              bodyMode === "html" ? (
+                <textarea
+                  value={body}
+                  onChange={(e) => setBody(e.target.value)}
+                  spellCheck={false}
+                  className="min-h-[280px] w-full resize-y bg-transparent p-3 font-mono text-xs text-foreground focus:outline-none"
+                  placeholder="<p>Bonjour {{prenom}}</p>"
+                />
+              ) : (
+                <>
+                  <EditorToolbar editor={editor} dict={dict} />
+                  <EditorContent
+                    editor={editor}
+                    className="min-h-[280px] p-3 focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-accent [&_.tiptap]:outline-none"
+                  />
+                </>
+              )
+            ) : !body ? (
+              <p className="p-6 text-center text-sm text-zinc-500">{dict.templates.form.previewEmpty}</p>
+            ) : (
+              <div className="bg-zinc-100 p-4 dark:bg-zinc-950">
+                <div
+                  className={`mx-auto overflow-hidden rounded-md border border-border bg-surface transition-all ${
+                    previewWidth === "mobile" ? "max-w-[375px]" : "max-w-full"
+                  }`}
+                >
+                  <IframePreview html={previewBody} />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+        <p className="text-xs text-zinc-500">{dict.templates.form.helpText}</p>
+        {variables.length > 0 && (
+          <p className="text-xs text-zinc-500">
+            {dict.templates.form.variablesDetected} {variables.map((v) => `{{${v}}}`).join(", ")}
+          </p>
+        )}
+        {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+      </form>
 
       <div className={tab === "settings" ? "flex max-w-2xl flex-col gap-4" : "hidden"}>
         {!templateId ? (
@@ -251,11 +308,87 @@ function TabButton({
   );
 }
 
+function ViewToggleButton({
+  active,
+  onClick,
+  icon: Icon,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  icon: (props: { className?: string }) => React.ReactElement;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex items-center gap-1.5 rounded px-2 py-1 text-sm font-medium ${
+        active ? "bg-accent/15 text-accent" : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+      }`}
+    >
+      <Icon className="h-3.5 w-3.5" />
+      {children}
+    </button>
+  );
+}
+
+// Styles en ligne plutôt que classes Tailwind : ce HTML est injecté dans l'iframe
+// de prévisualisation (document isolé, sans accès au CSS de l'app) ou envoyé tel
+// quel par email, aucun des deux contextes ne voit les classes Tailwind de l'app.
 function highlightVariables(html: string): string {
   return html.replace(
     /\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g,
     (_match, key: string) =>
-      `<span class="rounded bg-accent/20 px-1 py-0.5 font-mono text-[0.85em] text-accent">{{${key}}}</span>`,
+      `<span style="background:rgba(244,63,94,0.15);color:#e11d48;padding:1px 4px;border-radius:4px;font-family:ui-monospace,monospace;font-size:0.85em;">{{${key}}}</span>`,
+  );
+}
+
+function IframePreview({ html }: { html: string }) {
+  const ref = useRef<HTMLIFrameElement>(null);
+  const [height, setHeight] = useState(40);
+
+  useEffect(() => {
+    const iframe = ref.current;
+    if (!iframe) return;
+
+    let observer: ResizeObserver | null = null;
+
+    function measure() {
+      const body = iframe?.contentDocument?.body;
+      if (!body) return;
+      setHeight(body.scrollHeight);
+      // Le contenu peut encore changer de hauteur sans nouveau "load" (ex: le cadre
+      // bureau/mobile se rétrécit et le texte se remet à la ligne) : on observe le body.
+      observer?.disconnect();
+      observer = new ResizeObserver(() => setHeight(body.scrollHeight));
+      observer.observe(body);
+    }
+
+    // Le document srcDoc peut déjà être chargé au moment où cet effet s'exécute
+    // (chargement quasi instantané) : l'événement "load" serait alors manqué si
+    // on ne vérifiait pas aussi l'état actuel directement.
+    if (iframe.contentDocument?.readyState === "complete") measure();
+    iframe.addEventListener("load", measure);
+    return () => {
+      iframe.removeEventListener("load", measure);
+      observer?.disconnect();
+    };
+  }, [html]);
+
+  const srcDoc = `<!doctype html><html><head><meta charset="utf-8"><style>
+    body { margin: 0; padding: 16px; font-family: ui-sans-serif, system-ui, sans-serif; font-size: 14px; color: #18181b; }
+    @media (prefers-color-scheme: dark) { body { color: #f4f4f5; } }
+  </style></head><body>${html}</body></html>`;
+
+  return (
+    <iframe
+      ref={ref}
+      srcDoc={srcDoc}
+      sandbox="allow-same-origin"
+      title="Aperçu du template"
+      style={{ height, border: "none", width: "100%", display: "block" }}
+    />
   );
 }
 
@@ -318,7 +451,7 @@ function EditorToolbar({ editor, dict }: { editor: Editor | null; dict: Dictiona
   ];
 
   return (
-    <div className="sticky top-0 z-10 flex flex-wrap items-center gap-1 rounded-t-md border border-b-0 border-border bg-zinc-50 p-1 dark:bg-zinc-900">
+    <div className="sticky top-0 z-10 flex flex-wrap items-center gap-1 border-b border-border bg-zinc-50 p-1 dark:bg-zinc-900">
       {buttons.map((b) => (
         <button
           key={b.title}
