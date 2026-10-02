@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { answerDocsQuestion, type ChatMessage } from "@/lib/ai";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { prisma } from "@/lib/prisma";
 
 const MAX_MESSAGES = 12;
 const MAX_MESSAGE_LENGTH = 1000;
@@ -13,7 +14,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Trop de questions, réessaie dans quelques minutes." }, { status: 429 });
   }
 
-  const { messages } = (await request.json()) as { messages?: ChatMessage[] };
+  const { messages, sessionId, locale } = (await request.json()) as {
+    messages?: ChatMessage[];
+    sessionId?: string;
+    locale?: string;
+  };
   if (!Array.isArray(messages) || messages.length === 0) {
     return NextResponse.json({ error: "messages est requis" }, { status: 400 });
   }
@@ -33,6 +38,31 @@ export async function POST(request: NextRequest) {
 
   try {
     const reply = await answerDocsQuestion(messages);
+
+    // Historisation best-effort : une conversation par sessionId (généré côté client),
+    // on n'enregistre à chaque appel que le dernier message utilisateur + la réponse,
+    // le reste de l'historique envoyé au modèle est déjà en base depuis les tours précédents.
+    if (sessionId) {
+      const lastUserMessage = messages[messages.length - 1];
+      await prisma.docsChatConversation
+        .upsert({
+          where: { sessionId },
+          create: { sessionId, ip, locale },
+          update: { updatedAt: new Date() },
+        })
+        .then((conversation) =>
+          prisma.docsChatMessage.createMany({
+            data: [
+              { conversationId: conversation.id, role: "user", content: lastUserMessage.content },
+              { conversationId: conversation.id, role: "assistant", content: reply },
+            ],
+          }),
+        )
+        .catch(() => {
+          // L'historisation ne doit jamais faire échouer la réponse au visiteur.
+        });
+    }
+
     return NextResponse.json({ reply });
   } catch (err) {
     const error = err instanceof Error ? err.message : String(err);
