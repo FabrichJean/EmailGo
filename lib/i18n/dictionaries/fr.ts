@@ -107,6 +107,7 @@ const fr = {
       unknownError: "Erreur inconnue",
       save: "Enregistrer",
       saving: "Enregistrement…",
+      saved: "Template enregistré.",
       previewEmpty: "Remplis le corps pour voir l'aperçu.",
       desktopTab: "Bureau",
       mobileTab: "Mobile",
