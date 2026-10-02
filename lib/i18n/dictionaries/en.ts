@@ -8,6 +8,7 @@ const en = {
     connect: "Connect Gmail",
     history: "History",
     emailService: "Email Service",
+    docs: "Docs",
   },
   theme: {
     label: "Theme",

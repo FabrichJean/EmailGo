@@ -6,6 +6,7 @@ const fr = {
     connect: "Connexion Gmail",
     history: "Historique",
     emailService: "Email Service",
+    docs: "Docs",
   },
   theme: {
     label: "Thème",
