@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import CodeBlock from "./CodeBlock";
 import { IconPlay, IconTrash } from "../icons";
+import { useI18n } from "../I18nProvider";
+import { interpolate } from "@/lib/i18n/interpolate";
 
 const STORAGE_KEY = "emailgo-docs-playground";
 
@@ -31,6 +33,8 @@ function rowsToObject(rows: VariableRow[]): Record<string, string> {
 }
 
 export default function Playground() {
+  const { dict } = useI18n();
+  const d = dict.docsPlayground;
   const [open, setOpen] = useState(false);
   const [apiKey, setApiKey] = useState("");
   const [serviceId, setServiceId] = useState("");
@@ -87,7 +91,7 @@ export default function Playground() {
     setResult(null);
 
     if (!apiKey || !serviceId || !templateId || !recipient) {
-      setError("Tous les champs sont requis (sauf les variables).");
+      setError(d.missingFields);
       return;
     }
 
@@ -102,7 +106,7 @@ export default function Playground() {
       const data = await res.json();
       setResult({ status: res.status, body: JSON.stringify(data, null, 2) });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur réseau");
+      setError(err instanceof Error ? err.message : d.networkError);
     } finally {
       setSending(false);
     }
@@ -116,7 +120,7 @@ export default function Playground() {
         className="flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:bg-zinc-100 dark:hover:bg-zinc-900"
       >
         <IconPlay className="h-3.5 w-3.5 text-accent" />
-        Playground
+        {d.trigger}
       </button>
 
       {open && (
@@ -126,13 +130,13 @@ export default function Playground() {
             <div className="flex items-center justify-between border-b border-border p-4">
               <h3 className="flex items-center gap-2 font-medium text-foreground">
                 <IconPlay className="h-4 w-4 text-accent" />
-                Playground — POST /api/v1/send
+                {d.modalTitle}
               </h3>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
                 className="rounded-md p-1 text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-900"
-                aria-label="Fermer"
+                aria-label={d.close}
               >
                 ✕
               </button>
@@ -140,13 +144,12 @@ export default function Playground() {
 
             <div className="flex-1 overflow-y-auto p-4">
               <p className="mb-4 text-xs text-zinc-500">
-                Envoie une vraie requête depuis ton navigateur, avec ta propre clé API (générée depuis{" "}
-                <code className="rounded bg-accent/10 px-1 py-0.5 text-accent">/account</code>). Les valeurs restent
-                dans ton navigateur, rien n&apos;est transmis ailleurs que vers EmailGo.
+                {d.introBefore} <code className="rounded bg-accent/10 px-1 py-0.5 text-accent">/account</code>
+                {d.introAfter}
               </p>
 
               <div className="flex flex-col gap-3">
-                <Field label="Clé API">
+                <Field label={d.apiKeyLabel}>
                   <input
                     type="password"
                     value={apiKey}
