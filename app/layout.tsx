@@ -57,6 +57,11 @@ export default async function RootLayout({
       </head>
       <body className="h-dvh overflow-hidden bg-background text-foreground">
         <I18nProvider locale={locale}>{children}</I18nProvider>
+        <Script
+          src="https://epta.fabrich.site/static/track.js"
+          data-key="eptk_9764d5e74666230dd09e64414c3fb53759016ba215ff4af6"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );
