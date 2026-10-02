@@ -188,3 +188,192 @@ export default function DocsPage() {
               </MiniCard>
               <MiniCard title="Import CSV">
                 Importe un fichier avec une colonne par variable — chaque ligne devient un envoi personnalisé.
+              </MiniCard>
+            </div>
+          </DocSection>
+
+          <DocSection id="historique" eyebrow="Envoyer" title="Historique">
+            <p>
+              Chaque envoi — réussi ou échoué — est consigné dans <Code>/history</Code>, avec le destinataire, le
+              compte utilisé, le template et la raison en cas d&apos;échec. Filtre par statut pour repérer rapidement
+              ce qui doit être relancé.
+            </p>
+          </DocSection>
+
+          <DocSection id="api" eyebrow="Développeurs" title="Email Service & API">
+            <p>
+              Depuis <Code>/account</Code>, génère une clé API (format <Code>eg_…</Code>, affichée en clair une
+              seule fois) pour envoyer des emails depuis tes propres applications, sans passer par
+              l&apos;interface.
+            </p>
+
+            <h3 className="mt-6 mb-2 text-sm font-semibold text-foreground">Authentification</h3>
+            <p>Transmets ta clé dans l&apos;en-tête de chaque requête :</p>
+            <CodeBlock>{`Authorization: Bearer eg_xxxxxxxxxxxxxxxxxxxxxxxx`}</CodeBlock>
+
+            <h3 className="mt-6 mb-2 text-sm font-semibold text-foreground">Endpoint</h3>
+            <CodeBlock>{`POST /api/v1/send`}</CodeBlock>
+
+            <h3 className="mt-6 mb-2 text-sm font-semibold text-foreground">Exemple</h3>
+            <CodeBlock>{`curl -X POST https://ton-domaine.com/api/v1/send \\
+  -H "Authorization: Bearer eg_xxxxxxxxxxxxxxxxxxxxxxxx" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "accountId": "ID du compte Gmail (voir /connect)",
+    "templateId": "ID du template (voir l'onglet Paramètres du template)",
+    "recipient": "destinataire@exemple.com",
+    "variables": { "prenom": "Alex" }
+  }'`}</CodeBlock>
+            <p className="mt-3 text-sm text-zinc-500">
+              Réponse : <Code>{'{ "success": true }'}</Code> ou <Code>{'{ "error": "..." }'}</Code> avec un code HTTP
+              correspondant.
+            </p>
+
+            <h3 className="mt-6 mb-2 text-sm font-semibold text-foreground">Services</h3>
+            <p>
+              Depuis <Code>/email-service</Code>, organise tes intégrations : donne un nom et un identifiant à chaque
+              service (ex. &laquo;&nbsp;Notifications support&nbsp;&raquo;), associé à un compte Gmail — pratique
+              pour t&apos;y retrouver quand plusieurs applications envoient des emails via ton compte.
+            </p>
+          </DocSection>
+
+          <DocSection id="compte" eyebrow="Compte" title="Mon compte">
+            <p>
+              Depuis <Code>/account</Code> : informations de ton compte, statistiques (comptes Gmail actifs,
+              templates, emails envoyés), limite d&apos;envoi éventuelle, gestion des clés API, et déconnexion.
+            </p>
+          </DocSection>
+
+          <DocSection id="admin" eyebrow="Compte" title="Administration">
+            <p>
+              Réservé à l&apos;adresse définie comme administratrice. Depuis <Code>/admin</Code> (déverrouillage par
+              mot de passe dédié) : statistiques globales de la plateforme, gestion des utilisateurs — bannissement,
+              coupure ou limitation de l&apos;envoi (par jour, semaine ou mois).
+            </p>
+          </DocSection>
+
+          <DocSection id="faq" eyebrow="Aide" title="Questions fréquentes">
+            <div className="flex flex-col gap-5">
+              <Faq q="Le compte qui m'envoie des emails doit-il être le même que mon compte de connexion ?">
+                Non. Ton compte de connexion sert d&apos;identité sur EmailGo ; les comptes Gmail connectés dans{" "}
+                <Code>/connect</Code> sont ceux qui envoient réellement, et peuvent être différents.
+              </Faq>
+              <Faq q="Que se passe-t-il si je dépasse ma limite d'envoi ?">
+                Si une limite a été fixée pour ton compte, les envois sont bloqués avec un message explicite jusqu&apos;à
+                ce que la fenêtre glissante (jour, semaine ou mois) se libère.
+              </Faq>
+              <Faq q="Puis-je modifier un template généré par l'IA ?">
+                Oui, entièrement — le texte généré n&apos;est qu&apos;un point de départ, modifiable dans
+                l&apos;éditeur visuel comme en HTML.
+              </Faq>
+              <Faq q="Mes identifiants Gmail sont-ils en sécurité ?">
+                Les secrets (refresh token OAuth, mot de passe d&apos;application) sont chiffrés avant stockage et ne
+                sont jamais affichés en clair après la connexion.
+              </Faq>
+            </div>
+          </DocSection>
+
+          <div className="flex flex-col items-center gap-3 border-t border-border pt-10 text-center">
+            <p className="text-sm text-zinc-500">Prêt à envoyer ton premier email ?</p>
+            <Link
+              href="/login"
+              className="glow-accent flex items-center gap-1.5 rounded-md bg-accent px-5 py-2.5 text-sm font-medium text-accent-foreground hover:opacity-90"
+            >
+              Ouvrir EmailGo
+              <IconChevronRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+}
+
+function DocSection({
+  id,
+  eyebrow,
+  title,
+  children,
+}: {
+  id: string;
+  eyebrow: string;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section id={id} className="scroll-mt-20">
+      <p className="mb-1 text-xs font-semibold tracking-wide text-accent uppercase">{eyebrow}</p>
+      <h2 className="mb-4 text-2xl font-semibold text-foreground">{title}</h2>
+      <div className="text-[15px] leading-relaxed text-zinc-700 dark:text-zinc-300">{children}</div>
+    </section>
+  );
+}
+
+function MiniCard({
+  icon: Icon,
+  title,
+  children,
+}: {
+  icon?: (props: { className?: string }) => React.ReactElement;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="card flex flex-col gap-2 p-4">
+      <div className="flex items-center gap-2">
+        {Icon && (
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-accent/15 text-accent">
+            <Icon className="h-3.5 w-3.5" />
+          </span>
+        )}
+        <p className="text-sm font-medium text-foreground">{title}</p>
+      </div>
+      <p className="text-sm text-zinc-500">{children}</p>
+    </div>
+  );
+}
+
+function Step({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
+  return (
+    <li className="flex gap-3">
+      <span className="glow-accent flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-semibold text-accent-foreground">
+        {n}
+      </span>
+      <p>
+        <strong className="text-foreground">{title}</strong> — <span className="text-zinc-600 dark:text-zinc-400">{children}</span>
+      </p>
+    </li>
+  );
+}
+
+function ListPoint({ children }: { children: React.ReactNode }) {
+  return (
+    <li className="flex gap-2">
+      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
+      <span>{children}</span>
+    </li>
+  );
+}
+
+function Faq({ q, children }: { q: string; children: React.ReactNode }) {
+  return (
+    <div className="card p-4">
+      <p className="mb-1 text-sm font-medium text-foreground">{q}</p>
+      <p className="text-sm text-zinc-500">{children}</p>
+    </div>
+  );
+}
+
+function Code({ children }: { children: React.ReactNode }) {
+  return (
+    <code className="rounded bg-accent/10 px-1.5 py-0.5 font-mono text-[0.85em] text-accent">{children}</code>
+  );
+}
+
+function CodeBlock({ children }: { children: string }) {
+  return (
+    <pre className="overflow-x-auto rounded-md border border-border bg-zinc-50 p-3 text-xs dark:bg-zinc-900">
+      <code className="font-mono text-foreground">{children}</code>
+    </pre>
+  );
+}
