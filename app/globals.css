@@ -198,6 +198,50 @@ body::after {
   color: #71717a;
 }
 
+/* Au-delà du HTML : mots-clés/fonctions/nombres pour les snippets bash, JS, Python. */
+.code-highlight .token.keyword,
+.code-highlight .token.builtin,
+.code-highlight .token.important {
+  color: #a855f7;
+}
+
+.dark .code-highlight .token.keyword,
+.dark .code-highlight .token.builtin,
+.dark .code-highlight .token.important {
+  color: #c084fc;
+}
+
+.code-highlight .token.function,
+.code-highlight .token.class-name {
+  color: #0ea5e9;
+}
+
+.dark .code-highlight .token.function,
+.dark .code-highlight .token.class-name {
+  color: #38bdf8;
+}
+
+.code-highlight .token.number,
+.code-highlight .token.boolean,
+.code-highlight .token.constant {
+  color: #d97706;
+}
+
+.dark .code-highlight .token.number,
+.dark .code-highlight .token.boolean,
+.dark .code-highlight .token.constant {
+  color: #fbbf24;
+}
+
+.code-highlight .token.parameter,
+.code-highlight .token.variable {
+  color: var(--foreground);
+}
+
+.code-highlight .token.operator {
+  color: #71717a;
+}
+
 /* Balayage "squelette" affiché sur un bouton en cours de chargement, sans changer
    son texte : un dégradé traverse le bouton de gauche à droite en boucle. */
 @keyframes shimmer-sweep {
