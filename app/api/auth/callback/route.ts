@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
     if (!existingUser) {
       await sendNotification({
         title: "Nouvel utilisateur",
-        body: `${user.email} vient de s'inscrire sur Todo Mail.`,
+        body: `${user.email} vient de s'inscrire sur EmailGo.`,
         metadata: { userId: user.id, email: user.email },
       });
     }

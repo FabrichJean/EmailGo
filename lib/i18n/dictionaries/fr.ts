@@ -31,7 +31,7 @@ const fr = {
     more: "Plus",
   },
   auth: {
-    title: "Todo Mail",
+    title: "EmailGo",
     subtitle: "Connecte-toi pour gérer tes campagnes de prospection par email.",
     signInWithGoogle: "Se connecter avec Google",
     errorPrefix: "Erreur de connexion :",

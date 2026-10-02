@@ -1,4 +1,4 @@
-# Todo Mail.
+# EmailGo
 http://todo-mail.duckdns.org
 
 ![A beautiful sunset](/public/image.png)
@@ -98,8 +98,8 @@ Si l'écran de consentement est encore en mode "Testing", publie-le en productio
 
 ```bash
 # Sur le serveur
-git clone <ton-repo-url> todo-mail
-cd todo-mail
+git clone <ton-repo-url> emailgo
+cd emailgo
 npm ci   # régénère aussi le client Prisma (hook postinstall) — pas d'étape séparée requise
 ```
 
@@ -115,7 +115,7 @@ Lance l'app en continu avec [pm2](https://pm2.keymetrics.io/) (ou un service sys
 
 ```bash
 npm install -g pm2
-pm2 start npm --name todo-mail -- start
+pm2 start npm --name emailgo -- start
 pm2 save
 pm2 startup   # relance automatique au reboot du serveur
 ```
@@ -144,7 +144,7 @@ npm ci
 set -a; source .env.production; set +a
 npx prisma migrate deploy
 npm run build
-pm2 restart todo-mail
+pm2 restart emailgo
 ```
 
 ### 3. Choisir un hébergeur — Option B : Fly.io (managé, volume persistant)

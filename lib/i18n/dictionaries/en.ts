@@ -33,7 +33,7 @@ const en = {
     more: "More",
   },
   auth: {
-    title: "Todo Mail",
+    title: "EmailGo",
     subtitle: "Sign in to manage your email prospecting campaigns.",
     signInWithGoogle: "Sign in with Google",
     errorPrefix: "Connection error:",
