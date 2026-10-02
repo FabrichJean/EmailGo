@@ -19,6 +19,7 @@ export default async function EditTemplatePage({ params }: { params: Promise<{ i
       initialSubject={template.subject}
       initialBody={template.body}
       initialCreatedAt={template.createdAt.toISOString()}
+      userEmail={user.email}
     />
   );
 }
