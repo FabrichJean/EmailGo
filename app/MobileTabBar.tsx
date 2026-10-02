@@ -48,6 +48,11 @@ export default function MobileTabBar({ user, isAdmin }: { user: SidebarUserInfo;
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => setSettingsOpen(false)}
+            className="card flex items-center gap-3 px-4 py-3 text-sm font-medium text-foreground"
+          >
+            <IconBook className="h-4 w-4 text-accent" />
+            {dict.nav.docs}
+          </a>
           {isAdmin && (
             <Link
               href="/admin"
