@@ -1,5 +1,5 @@
 # EmailGo
-http://todo-mail.duckdns.org
+https://emailgo.fabrich.site
 
 ![A beautiful sunset](/public/image.png)
 
