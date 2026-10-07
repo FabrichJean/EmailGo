@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { clerkClient } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { getAdminSession, isAdminEmail } from "@/lib/auth/admin";
 
@@ -24,9 +25,15 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   await prisma.user.update({ where: { id }, data: { isBanned: banned } });
 
-  // Bannir coupe aussi immédiatement toutes ses sessions actives.
-  if (banned) {
-    await prisma.session.deleteMany({ where: { userId: id } });
+  // Le flag isBanned seul ne coupe l'accès qu'à la prochaine requête (getSession()) ;
+  // on utilise aussi le bannissement natif Clerk pour révoquer immédiatement ses sessions.
+  if (target.clerkId) {
+    const client = await clerkClient();
+    if (banned) {
+      await client.users.banUser(target.clerkId).catch(() => {});
+    } else {
+      await client.users.unbanUser(target.clerkId).catch(() => {});
+    }
   }
 
   return NextResponse.json({ success: true });
