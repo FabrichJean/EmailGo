@@ -14,6 +14,9 @@ datasource db {
 
 model User {
   id            String         @id @default(cuid())
+  // Identité gérée par Clerk (fournisseur d'auth) ; nullable le temps que les comptes
+  // pré-existants se reconnectent et se lient (voir lib/auth/session.ts, syncUser()).
+  clerkId       String?        @unique
   email         String         @unique
   name          String?
   avatarUrl     String?
@@ -24,7 +27,10 @@ model User {
   sendLimitCount  Int?
   sendLimitPeriod String? // "day" | "week" | "month"
 
-  sessions      Session[]
+  // Second facteur de l'espace admin (mot de passe dédié) : flag à expiration courte,
+  // remplace l'ancien Session.isAdminUnlocked maintenant que Clerk gère les sessions.
+  adminUnlockedUntil DateTime?
+
   gmailAccounts GmailAccount[]
   templates     Template[]
   sentEmails    SentEmail[]
@@ -43,16 +49,6 @@ model ApiKey {
   lastUsedAt DateTime?
 }
 
-model Session {
-  id              String   @id @default(cuid())
-  userId          String
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tokenHash       String   @unique
-  expiresAt       DateTime
-  createdAt       DateTime @default(now())
-  isAdminUnlocked Boolean  @default(false)
-}
-
 model GmailAccount {
   id           String    @id @default(cuid())
   userId       String?
@@ -60,9 +56,13 @@ model GmailAccount {
   email        String
   type         String // "oauth" | "smtp"
   displayName  String?
-  refreshToken String? // encrypted (oauth)
+  refreshToken String? // encrypted (oauth) — absent quand clerkUserId est renseigné
   accessToken  String? // encrypted (oauth)
   tokenExpiry  DateTime?
+  // Renseigné pour le compte auto-connecté à l'inscription via le scope gmail.send
+  // demandé par Clerk : le token d'accès est alors récupéré à la demande auprès de
+  // Clerk (qui gère le refresh) plutôt que stocké/déchiffré nous-mêmes.
+  clerkUserId  String?
   appPassword  String? // encrypted (smtp)
   isActive     Boolean   @default(true)
   createdAt    DateTime  @default(now())
