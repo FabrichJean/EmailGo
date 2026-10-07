@@ -2,6 +2,7 @@ import nodemailer from "nodemailer";
 import MailComposer from "nodemailer/lib/mail-composer/index.js";
 import { OAuth2Client } from "google-auth-library";
 import { gmail } from "googleapis/build/src/apis/gmail";
+import { clerkClient } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { decrypt } from "@/lib/crypto";
 import { renderTemplate, nl2br } from "@/lib/template";
@@ -42,18 +43,33 @@ function buildRawMessage(message: Message): Promise<string> {
 // L'envoi OAuth passe par l'API Gmail (et non le SMTP + XOAUTH2 de Gmail, plus fragile
 // et sujet à des rejets d'authentification même avec un token valide et le bon scope).
 async function sendViaGmailApi(account: GmailAccount, message: Message) {
-  if (!account.refreshToken) {
-    throw new Error(`Compte OAuth ${account.email} sans refresh token enregistré`);
-  }
-  const clientId = process.env.GOOGLE_CLIENT_ID;
-  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-  const redirectUri = process.env.GOOGLE_REDIRECT_URI;
-  if (!clientId || !clientSecret) {
-    throw new Error("GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET manquants dans .env");
-  }
+  let oauth2Client: OAuth2Client;
 
-  const oauth2Client = new OAuth2Client(clientId, clientSecret, redirectUri);
-  oauth2Client.setCredentials({ refresh_token: decrypt(account.refreshToken) });
+  if (account.clerkUserId) {
+    // Compte auto-connecté à l'inscription via le scope gmail.send demandé par Clerk :
+    // pas de refresh token stocké chez nous, on récupère un token d'accès valide auprès
+    // de Clerk à chaque envoi (il gère lui-même le renouvellement).
+    const client = await clerkClient();
+    const resp = await client.users.getUserOauthAccessToken(account.clerkUserId, "oauth_google");
+    const accessToken = resp.data[0]?.token;
+    if (!accessToken) {
+      throw new Error(`Impossible d'obtenir un token Google via Clerk pour ${account.email}`);
+    }
+    oauth2Client = new OAuth2Client();
+    oauth2Client.setCredentials({ access_token: accessToken });
+  } else {
+    if (!account.refreshToken) {
+      throw new Error(`Compte OAuth ${account.email} sans refresh token enregistré`);
+    }
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+    const redirectUri = process.env.GOOGLE_REDIRECT_URI;
+    if (!clientId || !clientSecret) {
+      throw new Error("GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET manquants dans .env");
+    }
+    oauth2Client = new OAuth2Client(clientId, clientSecret, redirectUri);
+    oauth2Client.setCredentials({ refresh_token: decrypt(account.refreshToken) });
+  }
 
   const gmailClient = gmail({ version: "v1", auth: oauth2Client });
   const raw = await buildRawMessage(message);
