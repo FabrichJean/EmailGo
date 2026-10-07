@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { SignOutButton } from "@clerk/nextjs";
 import { IconLogout } from "./icons";
 
 export type SidebarUserInfo = { email: string; name: string | null; avatarUrl: string | null };
@@ -35,15 +36,15 @@ export default function SidebarUser({
           <p className="truncate text-xs text-zinc-500">{user.email}</p>
         </div>
       </Link>
-      <form action="/api/auth/logout" method="POST">
+      <SignOutButton redirectUrl="/login">
         <button
-          type="submit"
+          type="button"
           title={signOutLabel}
           className="rounded-md p-2 text-zinc-500 hover:bg-zinc-100 hover:text-red-600 dark:hover:bg-zinc-900"
         >
           <IconLogout className="h-4 w-4" />
         </button>
-      </form>
+      </SignOutButton>
     </div>
   );
 }
