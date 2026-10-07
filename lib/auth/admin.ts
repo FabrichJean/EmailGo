@@ -51,6 +51,13 @@ export async function getAdminSession() {
   return session;
 }
 
-export async function unlockAdminSession(sessionId: string) {
-  await prisma.session.update({ where: { id: sessionId }, data: { isAdminUnlocked: true } });
+const ADMIN_UNLOCK_DURATION_MS = 2 * 60 * 60 * 1000; // 2h, à refaire ensuite (comme avant avec Session)
+
+// Clerk gère les sessions : le déverrouillage admin (2e facteur par mot de passe) est
+// maintenant un flag à expiration sur User plutôt que sur une ligne Session maison.
+export async function unlockAdminSession(userId: string) {
+  await prisma.user.update({
+    where: { id: userId },
+    data: { adminUnlockedUntil: new Date(Date.now() + ADMIN_UNLOCK_DURATION_MS) },
+  });
 }

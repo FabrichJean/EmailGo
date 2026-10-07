@@ -13,6 +13,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Mot de passe incorrect" }, { status: 401 });
   }
 
-  await unlockAdminSession(session.id);
+  await unlockAdminSession(session.userId);
   return NextResponse.json({ success: true });
 }
