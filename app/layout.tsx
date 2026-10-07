@@ -1,3 +1,4 @@
+import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -56,12 +57,14 @@ export default async function RootLayout({
         </Script>
       </head>
       <body className="h-dvh overflow-hidden bg-background text-foreground">
-        <I18nProvider locale={locale}>{children}</I18nProvider>
-        <Script
+        <ClerkProvider>
+          <I18nProvider locale={locale}>{children}</I18nProvider>
+          <Script
           src="https://epta.fabrich.site/static/track.js"
           data-key="eptk_9764d5e74666230dd09e64414c3fb53759016ba215ff4af6"
           strategy="afterInteractive"
-        />
+          />
+        </ClerkProvider>
       </body>
     </html>
   );
