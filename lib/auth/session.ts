@@ -1,70 +1,101 @@
-import crypto from "node:crypto";
-import { cookies } from "next/headers";
+import { auth, currentUser, clerkClient } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { sendNotification } from "@/lib/notifier";
+import type { User } from "@/generated/prisma/client";
 
-const SESSION_COOKIE = "session";
-const SESSION_DURATION_MS = 30 * 24 * 60 * 60 * 1000; // 30 jours
+export type AppSession = { userId: string; user: User; isAdminUnlocked: boolean };
 
-// NEXT_PUBLIC_APP_URL (pas NODE_ENV, peu fiable selon l'environnement d'exécution)
-// sert de signal pour savoir si l'app tourne réellement derrière HTTPS.
-const IS_HTTPS_DEPLOYMENT = (process.env.NEXT_PUBLIC_APP_URL ?? "").startsWith("https://");
+// Le scope gmail.send est demandé par Clerk lors de la connexion Google (configuré dans
+// le dashboard Clerk) : si l'utilisateur l'a accordé, on connecte automatiquement ce
+// compte comme premier compte d'envoi, sans passer par /connect. Le token est récupéré
+// à la demande auprès de Clerk (lib/mailer.ts) plutôt que stocké/déchiffré par nous —
+// Clerk gère déjà son renouvellement. Idempotent et non bloquant pour la connexion.
+async function tryAutoConnectGmail(clerkId: string, userId: string, email: string) {
+  try {
+    const client = await clerkClient();
+    const resp = await client.users.getUserOauthAccessToken(clerkId, "oauth_google");
+    const hasToken = resp.data.some((t) => !!t.token);
+    if (!hasToken) return;
 
-function hashToken(token: string): string {
-  return crypto.createHash("sha256").update(token).digest("hex");
+    const existing = await prisma.gmailAccount.findUnique({ where: { userId_email: { userId, email } } });
+    if (existing && !existing.clerkUserId) return; // compte déjà configuré manuellement : ne pas écraser
+
+    await prisma.gmailAccount.upsert({
+      where: { userId_email: { userId, email } },
+      create: { userId, email, type: "oauth", clerkUserId: clerkId },
+      update: { clerkUserId: clerkId, isActive: true },
+    });
+  } catch {
+    // Scope non accordé, provider Google non connecté, ou erreur Clerk : jamais bloquant.
+  }
 }
 
-export async function createSession(userId: string) {
-  const token = crypto.randomBytes(32).toString("hex");
-  const tokenHash = hashToken(token);
-  const expiresAt = new Date(Date.now() + SESSION_DURATION_MS);
+// Clerk est la source de vérité pour l'identité (connexion) ; cette table User reste la
+// source de vérité pour les données métier (bannissement, limites d'envoi...) et toutes
+// les relations existantes (GmailAccount, Template, SentEmail, ApiKey, Service) qui
+// pointent sur User.id — aucune n'a eu besoin de changer lors du passage à Clerk.
+async function syncUser(clerkId: string): Promise<User | null> {
+  const existing = await prisma.user.findUnique({ where: { clerkId } });
+  if (existing) return existing;
 
-  await prisma.session.create({ data: { userId, tokenHash, expiresAt } });
+  const cu = await currentUser();
+  const email = cu?.primaryEmailAddress?.emailAddress;
+  if (!email) return null;
 
-  const store = await cookies();
-  store.set(SESSION_COOKIE, token, {
-    httpOnly: true,
-    secure: IS_HTTPS_DEPLOYMENT,
-    sameSite: "lax",
-    path: "/",
-    expires: expiresAt,
+  // Compte créé avant l'introduction de Clerk (identifié par email uniquement) : on le lie
+  // au compte Clerk au lieu d'en créer un second, pour ne rien perdre de son historique.
+  const existingByEmail = await prisma.user.findUnique({ where: { email } });
+  if (existingByEmail) {
+    const linked = await prisma.user.update({
+      where: { id: existingByEmail.id },
+      data: {
+        clerkId,
+        name: cu?.fullName ?? existingByEmail.name,
+        avatarUrl: cu?.imageUrl ?? existingByEmail.avatarUrl,
+      },
+    });
+    await tryAutoConnectGmail(clerkId, linked.id, email);
+    return linked;
+  }
+
+  const isFirstUserEver = (await prisma.user.count()) === 0;
+  const user = await prisma.user.create({
+    data: { clerkId, email, name: cu?.fullName, avatarUrl: cu?.imageUrl },
   });
-}
 
-export async function getSession() {
-  const store = await cookies();
-  const token = store.get(SESSION_COOKIE)?.value;
-  if (!token) return null;
-
-  const tokenHash = hashToken(token);
-  const session = await prisma.session.findUnique({
-    where: { tokenHash },
-    include: { user: true },
+  await sendNotification({
+    title: "Nouvel utilisateur",
+    body: `${user.email} vient de s'inscrire sur EmailGo.`,
+    metadata: { userId: user.id, email: user.email },
   });
 
-  if (!session) return null;
-  if (session.expiresAt < new Date()) {
-    await prisma.session.delete({ where: { id: session.id } }).catch(() => {});
-    return null;
-  }
-  if (session.user.isBanned) {
-    await prisma.session.delete({ where: { id: session.id } }).catch(() => {});
-    return null;
+  // La toute première personne à se connecter récupère les données pré-existantes
+  // (comptes Gmail / templates / historique) créées avant l'introduction du multi-compte.
+  if (isFirstUserEver) {
+    await prisma.$transaction([
+      prisma.gmailAccount.updateMany({ where: { userId: null }, data: { userId: user.id } }),
+      prisma.template.updateMany({ where: { userId: null }, data: { userId: user.id } }),
+      prisma.sentEmail.updateMany({ where: { userId: null }, data: { userId: user.id } }),
+    ]);
   }
 
-  return session;
+  await tryAutoConnectGmail(clerkId, user.id, email);
+  return user;
 }
 
-export async function destroySession() {
-  const store = await cookies();
-  const token = store.get(SESSION_COOKIE)?.value;
-  if (token) {
-    await prisma.session.deleteMany({ where: { tokenHash: hashToken(token) } });
-  }
-  store.delete(SESSION_COOKIE);
+export async function getSession(): Promise<AppSession | null> {
+  const { userId: clerkId } = await auth();
+  if (!clerkId) return null;
+
+  const user = await syncUser(clerkId);
+  if (!user || user.isBanned) return null;
+
+  const isAdminUnlocked = !!user.adminUnlockedUntil && user.adminUnlockedUntil > new Date();
+  return { userId: user.id, user, isAdminUnlocked };
 }
 
-export async function requireUser() {
+export async function requireUser(): Promise<User> {
   const session = await getSession();
   if (!session) redirect("/login");
   return session.user;
