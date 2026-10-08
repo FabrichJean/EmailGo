@@ -67,8 +67,8 @@ export default function PrivacyPage() {
             <h2 className="text-base font-semibold text-foreground">5. Contact</h2>
             <p className="mt-2">
               Pour toute question concernant cette politique, contactez-nous à{" "}
-              <a href="mailto:contact.fabrich@gmail.com" className="text-accent underline">
-                contact.fabrich@gmail.com
+              <a href="mailto:contact@fabrich.site" className="text-accent underline">
+                contact@fabrich.site
               </a>
               .
             </p>
