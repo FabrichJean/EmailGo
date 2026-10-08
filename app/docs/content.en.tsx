@@ -48,7 +48,7 @@ export const NAV: NavGroup[] = [
 export const strings = {
   docsBadge: "Docs",
   readyTitle: "Ready to send your first email?",
-  openEmailGo: "Open EmailGo",
+  openEmailDo: "Open EmailDo",
 };
 
 export default function DocsContent() {
@@ -56,12 +56,12 @@ export default function DocsContent() {
     <>
       <DocSection id="demarrage" eyebrow="Getting started" title="Quick start">
         <p>
-          It all starts with one account: sign in to EmailGo with Google, then connect one or more Gmail accounts
+          It all starts with one account: sign in to EmailDo with Google, then connect one or more Gmail accounts
           that will actually send your emails. You&apos;ll be ready to reach out in just a few minutes.
         </p>
         <ol className="mt-4 flex flex-col gap-3">
           <Step n={1} title="Sign in to the platform">
-            From <Code>/login</Code>, sign in with Google. Your EmailGo account is created automatically on first
+            From <Code>/login</Code>, sign in with Google. Your EmailDo account is created automatically on first
             sign-in.
           </Step>
           <Step n={2} title="Connect a sending Gmail account">
@@ -83,7 +83,7 @@ export default function DocsContent() {
         </p>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <MiniCard icon={IconPlug} title="Automatic (OAuth)">
-            The simplest option: sign in with Google, EmailGo handles the rest. Ideal if you want to avoid any
+            The simplest option: sign in with Google, EmailDo handles the rest. Ideal if you want to avoid any
             password handling.
           </MiniCard>
           <MiniCard icon={IconShield} title="Manual (app password)">
@@ -201,7 +201,7 @@ export default function DocsContent() {
       <DocSection id="faq" eyebrow="Help" title="Frequently asked questions">
         <div className="flex flex-col gap-5">
           <Faq q="Does the account sending emails need to be the same as my login account?">
-            No. Your login account is your identity on EmailGo; the Gmail accounts connected in{" "}
+            No. Your login account is your identity on EmailDo; the Gmail accounts connected in{" "}
             <Code>/connect</Code> are the ones that actually send, and can be different.
           </Faq>
           <Faq q="What happens if I go over my sending limit?">

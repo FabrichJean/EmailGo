@@ -49,7 +49,7 @@ export const NAV: NavGroup[] = [
 export const strings = {
   docsBadge: "Docs",
   readyTitle: "Prêt à envoyer ton premier email ?",
-  openEmailGo: "Ouvrir EmailGo",
+  openEmailDo: "Ouvrir EmailDo",
 };
 
 export default function DocsContent() {
@@ -57,12 +57,12 @@ export default function DocsContent() {
     <>
       <DocSection id="demarrage" eyebrow="Prise en main" title="Démarrage rapide">
         <p>
-          Tout part d&apos;un seul compte : connecte-toi à EmailGo avec Google, puis relie un ou plusieurs comptes
+          Tout part d&apos;un seul compte : connecte-toi à EmailDo avec Google, puis relie un ou plusieurs comptes
           Gmail qui serviront à envoyer tes emails. En quelques minutes, tu es prêt à prospecter.
         </p>
         <ol className="mt-4 flex flex-col gap-3">
           <Step n={1} title="Connexion à la plateforme">
-            Depuis <Code>/login</Code>, connecte-toi avec Google. Ton compte EmailGo est créé automatiquement à la
+            Depuis <Code>/login</Code>, connecte-toi avec Google. Ton compte EmailDo est créé automatiquement à la
             première connexion.
           </Step>
           <Step n={2} title="Connecter un compte Gmail d'envoi">
@@ -86,7 +86,7 @@ export default function DocsContent() {
         </p>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <MiniCard icon={IconPlug} title="Connexion automatique (OAuth)">
-            Le plus simple : connecte-toi avec Google, EmailGo gère le reste. Idéal si tu veux éviter toute
+            Le plus simple : connecte-toi avec Google, EmailDo gère le reste. Idéal si tu veux éviter toute
             manipulation de mot de passe.
           </MiniCard>
           <MiniCard icon={IconShield} title="Connexion manuelle (mot de passe d'application)">
@@ -208,7 +208,7 @@ export default function DocsContent() {
       <DocSection id="faq" eyebrow="Aide" title="Questions fréquentes">
         <div className="flex flex-col gap-5">
           <Faq q="Le compte qui m'envoie des emails doit-il être le même que mon compte de connexion ?">
-            Non. Ton compte de connexion sert d&apos;identité sur EmailGo ; les comptes Gmail connectés dans{" "}
+            Non. Ton compte de connexion sert d&apos;identité sur EmailDo ; les comptes Gmail connectés dans{" "}
             <Code>/connect</Code> sont ceux qui envoient réellement, et peuvent être différents.
           </Faq>
           <Faq q="Que se passe-t-il si je dépasse ma limite d'envoi ?">

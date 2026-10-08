@@ -8,8 +8,8 @@ import DocsContentEn, { NAV as NAV_EN, strings as strings_en } from "./content.e
 import ChatWidget from "./ChatWidget";
 
 export const metadata: Metadata = {
-  title: "Documentation — EmailGo",
-  description: "Guide complet d'EmailGo : comptes Gmail, templates, génération par IA, envoi, historique et API.",
+  title: "Documentation — EmailDo",
+  description: "Guide complet d'EmailDo : comptes Gmail, templates, génération par IA, envoi, historique et API.",
 };
 
 export default async function DocsPage() {
@@ -28,7 +28,7 @@ export default async function DocsPage() {
             <span className="glow-accent flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent text-accent-foreground">
               <IconSend className="h-4 w-4" />
             </span>
-            <span className="font-semibold text-foreground">EmailGo</span>
+            <span className="font-semibold text-foreground">EmailDo</span>
             <span className="rounded-full border border-border px-2 py-0.5 text-xs text-zinc-500">
               {strings.docsBadge}
             </span>
@@ -72,7 +72,7 @@ export default async function DocsPage() {
               href="/login"
               className="glow-accent flex items-center gap-1.5 rounded-md bg-accent px-5 py-2.5 text-sm font-medium text-accent-foreground hover:opacity-90"
             >
-              {strings.openEmailGo}
+              {strings.openEmailDo}
               <IconChevronRight className="h-4 w-4" />
             </Link>
           </div>

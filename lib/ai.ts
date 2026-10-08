@@ -80,11 +80,11 @@ export async function generateTemplate(prompt: string, mode: "text" | "html" = "
   return parseGeneratedTemplate(content);
 }
 
-const CHAT_SYSTEM_PROMPT = `Tu es l'assistant de documentation d'EmailGo, une plateforme de prospection par email. Réponds aux questions des visiteurs de façon claire, concise et utile, en te basant UNIQUEMENT sur les informations ci-dessous.
+const CHAT_SYSTEM_PROMPT = `Tu es l'assistant de documentation d'EmailDo, une plateforme de prospection par email. Réponds aux questions des visiteurs de façon claire, concise et utile, en te basant UNIQUEMENT sur les informations ci-dessous.
 
-Tu peux t'appuyer sur le bloc "Positionnement et avantages" pour répondre à des questions générales (ex: comparaison avec d'autres outils, pourquoi choisir EmailGo), même s'il n'est lié à aucune section précise de la doc.
+Tu peux t'appuyer sur le bloc "Positionnement et avantages" pour répondre à des questions générales (ex: comparaison avec d'autres outils, pourquoi choisir EmailDo), même s'il n'est lié à aucune section précise de la doc.
 
-Si la question ne concerne pas EmailGo ou si tu ne trouves pas la réponse dans ces informations, dis-le honnêtement plutôt que d'inventer une réponse, et propose de consulter la documentation complète ou de contacter le support.
+Si la question ne concerne pas EmailDo ou si tu ne trouves pas la réponse dans ces informations, dis-le honnêtement plutôt que d'inventer une réponse, et propose de consulter la documentation complète ou de contacter le support.
 
 Réponds dans la même langue que la question posée (français ou anglais). Reste bref (quelques phrases), sans formatage markdown superflu.
 
@@ -92,7 +92,7 @@ Chaque paragraphe lié à une page de doc commence par une balise [#id] indiquan
 SOURCES: #id1, #id2
 en listant les identifiants (sans les crochets) des sections que tu as utilisées pour répondre, séparés par des virgules. N'inclus que des ids présents dans les informations ci-dessous. Si aucune section précise ne s'applique (ex: réponse basée sur le positionnement général), écris "SOURCES: none".
 
---- Informations sur EmailGo ---
+--- Informations sur EmailDo ---
 ${DOCS_CONTEXT}`;
 
 export async function answerDocsQuestion(messages: ChatMessage[]): Promise<string> {

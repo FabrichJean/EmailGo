@@ -35,7 +35,7 @@ const en = {
     more: "More",
   },
   auth: {
-    title: "EmailGo",
+    title: "EmailDo",
     subtitle: "Sign in to manage your email prospecting campaigns.",
     signInWithGoogle: "Sign in with Google",
     errorPrefix: "Connection error:",
@@ -243,7 +243,7 @@ const en = {
   },
   emailService: {
     title: "Email Service",
-    subtitle: "Send emails programmatically from your own applications via the EmailGo API.",
+    subtitle: "Send emails programmatically from your own applications via the EmailDo API.",
     services: {
       title: "Services",
       subtitle: "Create one service per integration to identify it easily in your API calls.",
@@ -343,7 +343,7 @@ const en = {
   },
   account: {
     title: "My account",
-    subtitle: "Information about your EmailGo account.",
+    subtitle: "Information about your EmailDo account.",
     memberSince: "Member since {date}",
     statAccounts: "Active Gmail accounts",
     statTemplates: "Templates",
@@ -351,7 +351,7 @@ const en = {
     signOut: "Sign out",
     apiKeys: {
       title: "API keys",
-      subtitle: "Generate an API key to access EmailGo programmatically (detailed usage coming soon).",
+      subtitle: "Generate an API key to access EmailDo programmatically (detailed usage coming soon).",
       namePlaceholder: "Key name (e.g. CRM integration)",
       create: "Generate a key",
       creating: "Generating…",
@@ -374,7 +374,7 @@ const en = {
     modalTitle: "Playground — POST /api/v1/send",
     close: "Close",
     introBefore: "Send a real request from your browser, with your own API key (generated from",
-    introAfter: "). Values stay in your browser — nothing is sent anywhere but to EmailGo.",
+    introAfter: "). Values stay in your browser — nothing is sent anywhere but to EmailDo.",
     apiKeyLabel: "API key",
     serviceIdLabel: "Service ID",
     templateIdLabel: "Template ID",
@@ -394,9 +394,9 @@ const en = {
   docsChat: {
     triggerShort: "Ask AI",
     close: "Close",
-    placeholder: "Ask a question about EmailGo…",
+    placeholder: "Ask a question about EmailDo…",
     send: "Send",
-    greeting: "Hi! Ask me anything about EmailGo, or pick an example below:",
+    greeting: "Hi! Ask me anything about EmailDo, or pick an example below:",
     suggestions: [
       "How do I connect a Gmail account?",
       "How does AI generation work?",

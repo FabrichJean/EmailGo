@@ -1,4 +1,4 @@
-# Base de connaissance — Assistant IA EmailGo
+# Base de connaissance — Assistant IA EmailDo
 
 Ce fichier sert de contexte à l'assistant IA de la page `/docs` (chargé par `lib/ai.ts`,
 fonction `answerDocsQuestion`). Pour enrichir ce que l'assistant sait, ajoute simplement un
@@ -13,9 +13,9 @@ l'ancre réelle d'une section dans `app/docs/content.fr.tsx` / `content.en.tsx` 
 positionnement) reste une information valide, simplement sans lien à citer — le modèle doit
 alors répondre `SOURCES: none`.
 
-## EmailGo en bref
+## EmailDo en bref
 
-EmailGo est une plateforme de prospection par email : connexion de comptes Gmail, création de
+EmailDo est une plateforme de prospection par email : connexion de comptes Gmail, création de
 templates réutilisables (avec génération par IA), et envoi d'emails — à l'unité, en masse, ou
 par programmation via une API.
 
@@ -23,7 +23,7 @@ par programmation via une API.
 
 _Information générale, sans section de doc dédiée._
 
-EmailGo envoie réellement depuis de vrais comptes Gmail de l'utilisateur (OAuth officiel
+EmailDo envoie réellement depuis de vrais comptes Gmail de l'utilisateur (OAuth officiel
 Google ou mot de passe d'application), et non depuis un serveur SMTP tiers mutualisé — ce qui
 donne une bien meilleure délivrabilité (moins de risque d'atterrir en spam) que la plupart des
 outils de cold-emailing qui envoient via leur propre infrastructure partagée entre des

@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
 export async function generateMetadata(): Promise<Metadata> {
   const { locale } = await getServerDictionary();
   return {
-    title: "EmailGo",
+    title: "EmailDo",
     description:
       locale === "fr"
         ? "Envoi d'emails automatique avec templates via Gmail"

@@ -3,8 +3,8 @@ import Link from "next/link";
 import { IconSend } from "../icons";
 
 export const metadata: Metadata = {
-  title: "Conditions d'utilisation — EmailGo",
-  description: "Conditions d'utilisation d'EmailGo.",
+  title: "Conditions d'utilisation — EmailDo",
+  description: "Conditions d'utilisation d'EmailDo.",
 };
 
 export default function TermsPage() {
@@ -16,7 +16,7 @@ export default function TermsPage() {
             <span className="glow-accent flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent text-accent-foreground">
               <IconSend className="h-4 w-4" />
             </span>
-            <span className="font-semibold text-foreground">EmailGo</span>
+            <span className="font-semibold text-foreground">EmailDo</span>
           </Link>
         </div>
       </header>
@@ -29,7 +29,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-base font-semibold text-foreground">1. Objet</h2>
             <p className="mt-2">
-              EmailGo est un service permettant d&apos;envoyer des emails personnalisés à partir
+              EmailDo est un service permettant d&apos;envoyer des emails personnalisés à partir
               de modèles, via un ou plusieurs comptes Gmail connectés par l&apos;utilisateur.
             </p>
           </section>
@@ -37,7 +37,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-base font-semibold text-foreground">2. Utilisation acceptable</h2>
             <p className="mt-2">
-              Vous vous engagez à utiliser EmailGo dans le respect des lois applicables et des
+              Vous vous engagez à utiliser EmailDo dans le respect des lois applicables et des
               règles d&apos;utilisation de Google (notamment l&apos;interdiction d&apos;envoi de
               spam ou de contenus non sollicités). Tout usage abusif peut entraîner la suspension
               du compte.

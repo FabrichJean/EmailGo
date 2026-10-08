@@ -3,8 +3,8 @@ import Link from "next/link";
 import { IconSend } from "../icons";
 
 export const metadata: Metadata = {
-  title: "Politique de confidentialité — EmailGo",
-  description: "Politique de confidentialité d'EmailGo.",
+  title: "Politique de confidentialité — EmailDo",
+  description: "Politique de confidentialité d'EmailDo.",
 };
 
 export default function PrivacyPage() {
@@ -16,7 +16,7 @@ export default function PrivacyPage() {
             <span className="glow-accent flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent text-accent-foreground">
               <IconSend className="h-4 w-4" />
             </span>
-            <span className="font-semibold text-foreground">EmailGo</span>
+            <span className="font-semibold text-foreground">EmailDo</span>
           </Link>
         </div>
       </header>
@@ -29,7 +29,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-base font-semibold text-foreground">1. Données collectées</h2>
             <p className="mt-2">
-              EmailGo collecte votre adresse email, votre nom et votre photo de profil lors de la
+              EmailDo collecte votre adresse email, votre nom et votre photo de profil lors de la
               connexion (via Clerk). Si vous connectez un compte Gmail pour l&apos;envoi
               d&apos;emails, nous accédons uniquement aux autorisations nécessaires à l&apos;envoi
               de messages en votre nom (scope <code>gmail.send</code>), jamais à la lecture de

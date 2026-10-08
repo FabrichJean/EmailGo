@@ -33,7 +33,7 @@ const fr = {
     more: "Plus",
   },
   auth: {
-    title: "EmailGo",
+    title: "EmailDo",
     subtitle: "Connecte-toi pour gérer tes campagnes de prospection par email.",
     signInWithGoogle: "Se connecter avec Google",
     errorPrefix: "Erreur de connexion :",
@@ -241,7 +241,7 @@ const fr = {
   },
   emailService: {
     title: "Email Service",
-    subtitle: "Envoie des emails par programmation depuis tes propres applications via l'API EmailGo.",
+    subtitle: "Envoie des emails par programmation depuis tes propres applications via l'API EmailDo.",
     services: {
       title: "Services",
       subtitle: "Crée un service par intégration pour l'identifier facilement dans tes appels API.",
@@ -341,7 +341,7 @@ const fr = {
   },
   account: {
     title: "Mon compte",
-    subtitle: "Informations liées à ton compte EmailGo.",
+    subtitle: "Informations liées à ton compte EmailDo.",
     memberSince: "Membre depuis le {date}",
     statAccounts: "Comptes Gmail actifs",
     statTemplates: "Templates",
@@ -349,7 +349,7 @@ const fr = {
     signOut: "Déconnexion",
     apiKeys: {
       title: "Clés API",
-      subtitle: "Génère une clé API pour accéder à EmailGo par programmation (utilisation détaillée à venir).",
+      subtitle: "Génère une clé API pour accéder à EmailDo par programmation (utilisation détaillée à venir).",
       namePlaceholder: "Nom de la clé (ex : Intégration CRM)",
       create: "Générer une clé",
       creating: "Génération…",
@@ -372,7 +372,7 @@ const fr = {
     modalTitle: "Playground — POST /api/v1/send",
     close: "Fermer",
     introBefore: "Envoie une vraie requête depuis ton navigateur, avec ta propre clé API (générée depuis",
-    introAfter: "). Les valeurs restent dans ton navigateur, rien n'est transmis ailleurs que vers EmailGo.",
+    introAfter: "). Les valeurs restent dans ton navigateur, rien n'est transmis ailleurs que vers EmailDo.",
     apiKeyLabel: "Clé API",
     serviceIdLabel: "Service ID",
     templateIdLabel: "Template ID",
@@ -392,9 +392,9 @@ const fr = {
   docsChat: {
     triggerShort: "Demander à l'IA",
     close: "Fermer",
-    placeholder: "Pose une question sur EmailGo…",
+    placeholder: "Pose une question sur EmailDo…",
     send: "Envoyer",
-    greeting: "Salut ! Pose-moi une question sur EmailGo, ou choisis un exemple ci-dessous :",
+    greeting: "Salut ! Pose-moi une question sur EmailDo, ou choisis un exemple ci-dessous :",
     suggestions: [
       "Comment connecter un compte Gmail ?",
       "Comment fonctionne la génération par IA ?",

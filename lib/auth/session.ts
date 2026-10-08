@@ -66,7 +66,7 @@ async function syncUser(clerkId: string): Promise<User | null> {
 
   await sendNotification({
     title: "Nouvel utilisateur",
-    body: `${user.email} vient de s'inscrire sur EmailGo.`,
+    body: `${user.email} vient de s'inscrire sur EmailDo.`,
     metadata: { userId: user.id, email: user.email },
   });
 
