@@ -6,7 +6,7 @@ import { IconPlay, IconTrash } from "../icons";
 import { useI18n } from "../I18nProvider";
 import { interpolate } from "@/lib/i18n/interpolate";
 
-const STORAGE_KEY = "emailgo-docs-playground";
+const STORAGE_KEY = "emaildo-docs-playground";
 
 type VariableRow = { key: string; value: string };
 type StoredFields = { apiKey: string; serviceId: string; templateId: string; recipient: string; variables: VariableRow[] };

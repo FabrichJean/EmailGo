@@ -51,7 +51,7 @@ function extractSources(content: string): { text: string; sourceIds: string[] } 
   return { text, sourceIds: ids };
 }
 
-const SESSION_STORAGE_KEY = "emailgo-docs-chat-session";
+const SESSION_STORAGE_KEY = "emaildo-docs-chat-session";
 
 function getSessionId(): string {
   try {
