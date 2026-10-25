@@ -51,6 +51,8 @@ async function callNvidia(
       messages,
       temperature: options.temperature,
       max_tokens: options.maxTokens,
+      // Modèles "reasoning" : sans ça, le budget de tokens part dans la réflexion et content reste vide.
+      chat_template_kwargs: { enable_thinking: false },
     }),
     signal: AbortSignal.timeout(30000),
   });
